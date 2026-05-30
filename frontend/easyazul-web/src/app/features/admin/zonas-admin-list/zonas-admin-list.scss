@@ -1,0 +1,84 @@
+:host { display: block; }
+
+.table-card{
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(10,12,28,.35);
+  overflow: hidden;
+}
+
+table{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th{
+  text-align: left;
+  font-weight: 900;
+  opacity: .9;
+  padding: 14px 14px;
+  background: rgba(255,255,255,.03);
+  border-bottom: 1px solid rgba(255,255,255,.10);
+}
+
+tbody td{
+  padding: 14px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+tbody tr:last-child td{ border-bottom: 0; }
+
+.right{
+  text-align: right;
+  white-space: nowrap;
+}
+
+.muted{ opacity: .85; }
+
+.empty{
+  padding: 18px 14px;
+  opacity: .8;
+  text-align: center;
+}
+
+/* bloco do nome */
+.name .main{ font-weight: 950; }
+.name .subline{
+  margin-top: 2px;
+  opacity: .75;
+  font-size: 12px;
+}
+
+.row-anim{
+  animation: fadeUp 260ms ease both;
+  animation-delay: calc(min(var(--i, 0), 10) * 22ms);
+}
+
+@keyframes fadeUp{
+  from{ opacity: 0; transform: translateY(6px); }
+  to{ opacity: 1; transform: translateY(0); }
+}
+
+td.right .ez-icon{ margin-left: 6px; }
+td.right .ez-icon:first-child{ margin-left: 0; }
+
+@media (max-width: 920px){
+  thead{ display: none; }
+
+  table, tbody, tr, td{
+    display: block;
+    width: 100%;
+  }
+
+  tbody td{
+    border-bottom: 0;
+    padding: 10px 14px;
+  }
+
+  tbody tr{
+    border-bottom: 1px solid rgba(255,255,255,.10);
+  }
+
+  .right{ text-align: left; }
+  td.right{ padding-top: 6px; }
+}

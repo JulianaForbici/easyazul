@@ -1,0 +1,85 @@
+<div class="veh-modal-backdrop" *ngIf="aberto" (click)="onFechar()"></div>
+<div class="veh-modal" *ngIf="aberto" role="dialog" aria-modal="true">
+  <header class="veh-modal-head">
+    <div class="veh-modal-head-left">
+      <div class="veh-modal-title">
+        {{ modo === 'criar' ? 'Cadastrar veículo' : 'Editar veículo' }}
+      </div>
+      <div class="veh-modal-sub">
+        {{ modo === 'criar' ? 'Cadastre um veículo para reservar tickets com mais rapidez.' : 'Altere placa e tipo do veículo.' }}
+      </div>
+    </div>
+    <button class="veh-icon-btn" type="button" (click)="onFechar()" [disabled]="carregando" aria-label="Fechar">
+      <span class="material-icons">close</span>
+    </button>
+  </header>
+  <div class="veh-body">
+    <div class="veh-msg veh-error" *ngIf="erro">{{ erro }}</div>
+    <div class="veh-grid">
+      <div class="veh-field">
+        <label>Placa</label>
+        <input
+          class="veh-inp"
+          [(ngModel)]="placa"
+          name="placa"
+          placeholder="ABC1D23"
+          maxlength="8"
+          autocomplete="off"
+        />
+        <small>Formato Mercosul: ABC1D23</small>
+      </div>
+      <div class="veh-field">
+        <label>Tipo</label>
+        <div class="veh-segmented">
+          <label class="veh-seg" *ngFor="let t of tipos">
+            <input type="radio" name="tipoVeiculo" [value]="t" [(ngModel)]="tipoVeiculo"/>
+            <span class="veh-seg-pill">
+              <span class="veh-dot" aria-hidden="true"></span>
+              <span class="veh-seg-text">{{ t }}</span>
+            </span>
+          </label>
+        </div>
+      </div>
+      <div class="veh-field" *ngIf="modoAdmin && modo === 'criar'">
+        <label>ID do dono</label>
+        <input class="veh-inp" type="number" [(ngModel)]="idDono" name="idDono" placeholder="Ex: 3"/>
+        <small>Admin: informe o ID do usuário dono.</small>
+      </div>
+      <div class="veh-hint" *ngIf="!modoAdmin && modo === 'criar'">
+        <span class="material-icons" aria-hidden="true">verified_user</span>
+        <div>
+          <div class="veh-hint-title">Vínculo automático</div>
+          <div class="veh-hint-sub">O veículo será vinculado ao usuário logado.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer class="veh-actions">
+    <button class="veh-btn ghost" type="button" [disabled]="carregando" (click)="onFechar()">
+      Cancelar
+    </button>
+    <button
+      class="veh-btn danger"
+      type="button"
+      *ngIf="modo === 'editar'"
+      [disabled]="carregando"
+      (click)="abrirConfirmacaoExcluir()"
+    ><span class="material-icons">delete</span>Excluir
+    </button>
+    <button class="veh-btn primary" type="button" [disabled]="carregando" (click)="salvar()">
+      <span class="material-icons">save</span>
+      {{ modo === 'criar' ? 'Cadastrar' : 'Salvar' }}
+    </button>
+  </footer>
+</div>
+<div class="veh-confirm-backdrop" *ngIf="aberto && confirmarExcluir" (click)="cancelarExcluir()"></div>
+<div class="veh-confirm" *ngIf="aberto && confirmarExcluir" role="dialog" aria-modal="true">
+  <div class="veh-confirm-title">Confirmar exclusão</div>
+  <div class="veh-confirm-sub">Tem certeza que deseja excluir esse veículo?</div>
+  <div class="veh-confirm-actions">
+    <button class="veh-btn ghost" type="button" [disabled]="carregando" (click)="cancelarExcluir()">Cancelar</button>
+    <button class="veh-btn danger" type="button" [disabled]="carregando" (click)="excluir()"><span
+      class="material-icons">delete</span>Excluir
+    </button>
+  </div>
+</div>

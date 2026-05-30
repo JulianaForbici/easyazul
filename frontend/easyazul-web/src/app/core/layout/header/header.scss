@@ -1,0 +1,117 @@
+.hdr{
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topbar{
+  background: rgba(10,12,28,.78);
+  border-bottom: 1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(12px);
+}
+
+.topbar-shell{
+  width: min(1180px, 92vw);
+  margin: 0 auto;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand{
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 210px;
+}
+
+.brand-logo{
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 16px 24px rgba(0,0,0,.35));
+}
+
+.brand-text{ line-height: 1.05; }
+
+.brand-name{
+  font-weight: 980;
+  font-size: 18px;
+  letter-spacing: -.2px;
+
+  background: linear-gradient(90deg, rgba(123,79,245,1), rgba(45,160,255,1));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.brand-city{
+  font-size: 12px;
+  opacity: .82;
+}
+.nav{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.nav a{
+  text-decoration: none;
+  color: rgba(255,255,255,.82);
+  font-weight: 900;
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  transition: background .14s ease, border-color .14s ease, transform .12s ease;
+}
+.nav a:hover{
+  background: rgba(255,255,255,.06);
+  transform: translateY(-1px);
+}
+.nav a.active{
+  background: rgba(123,79,245,.16);
+  border-color: rgba(123,79,245,.30);
+  color: rgba(255,255,255,.95);
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+.account{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.avatar{
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  text-decoration: none;
+  color: rgba(255,255,255,.92);
+}
+.acc-btn{
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.92);
+  font-weight: 950;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.acc-btn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 16px 34px rgba(0,0,0,.35);
+}
+
+@media (max-width: 980px){
+  .nav{ display: none; }
+}

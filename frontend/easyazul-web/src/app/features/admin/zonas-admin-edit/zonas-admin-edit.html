@@ -1,0 +1,102 @@
+<div class="page">
+  <div class="shell">
+    <header class="head">
+      <div class="head-left">
+        <div class="title">
+          <div class="t1">Editar Zona</div>
+          <div class="sub">ID {{ idZona }}</div>
+        </div>
+      </div>
+      <div class="head-right">
+        <button class="btn ghost" type="button" (click)="voltar()" [disabled]="carregando || salvando">
+          <span class="material-icons">arrow_back</span>
+          Voltar
+        </button>
+        <button class="btn" type="button" (click)="salvar()" [disabled]="carregando || salvando">
+          <span class="material-icons">save</span>
+          Salvar
+        </button>
+      </div>
+    </header>
+    <div class="msg error" *ngIf="erro">{{ erro }}</div>
+    <div class="msg ok" *ngIf="okMsg">{{ okMsg }}</div>
+    <div class="msg" *ngIf="carregando">Carregando zona...</div>
+    <section class="card" *ngIf="!carregando && !erro">
+      <div class="grid">
+        <div class="field">
+          <label>Nome</label>
+          <input [(ngModel)]="nome" placeholder="Ex: Vila Germânica" />
+        </div>
+        <div class="field">
+          <label>Tarifa (R$)</label>
+          <input type="number" step="0.01" [(ngModel)]="tarifa" />
+        </div>
+        <div class="field">
+          <label>Tempo máximo (min)</label>
+          <input type="number" [(ngModel)]="tempoMaximo" />
+        </div>
+        <div class="field">
+          <label>Capacidade de vagas</label>
+          <input type="number" [(ngModel)]="capacidadeVagas" />
+        </div>
+        <div class="field">
+          <label>Hora início</label>
+          <input type="time" [(ngModel)]="horaInicio" />
+        </div>
+        <div class="field">
+          <label>Hora fim</label>
+          <input type="time" [(ngModel)]="horaFim" />
+        </div>
+        <div class="field full">
+          <label>Descrição</label>
+          <textarea rows="3" [(ngModel)]="descricao" placeholder="Opcional"></textarea>
+        </div>
+        <div class="divider full"></div>
+        <div class="field full">
+          <label>Localização</label>
+          <div class="segmented">
+            <button type="button" class="seg"
+                    [class.active]="modoLocalizacao==='ENDERECO'"
+                    (click)="trocarModo('ENDERECO')">
+              Endereço
+            </button>
+            <button type="button" class="seg"
+                    [class.active]="modoLocalizacao==='LATLON'"
+                    (click)="trocarModo('LATLON')">
+              Latitude/Longitude
+            </button>
+          </div>
+        </div>
+        <div class="field full" *ngIf="modoLocalizacao==='ENDERECO'">
+          <label>Endereço</label>
+          <input [(ngModel)]="endereco" placeholder="Rua ... , Blumenau - SC" />
+        </div>
+        <ng-container *ngIf="modoLocalizacao==='LATLON'">
+          <div class="field">
+            <label>Latitude</label>
+            <input type="number" step="0.000001" [(ngModel)]="latitude" />
+          </div>
+          <div class="field">
+            <label>Longitude</label>
+            <input type="number" step="0.000001" [(ngModel)]="longitude" />
+          </div>
+        </ng-container>
+      </div>
+      <footer class="footer">
+        <button class="btn ghost" type="button" (click)="voltar()" [disabled]="salvando">
+          Cancelar
+        </button>
+        <button class="btn" type="button" (click)="salvar()" [disabled]="salvando">
+          <span class="material-icons">save</span>
+          Salvar alterações
+        </button>
+      </footer>
+    </section>
+  </div>
+  <footer class="brand-footer">
+    <div class="brand-footer-shell">
+      <div class="brand-footer-title">EasyAzul</div>
+      <div class="brand-footer-sub">Projeto integrador • Juliana Forbici</div>
+    </div>
+  </footer>
+</div>

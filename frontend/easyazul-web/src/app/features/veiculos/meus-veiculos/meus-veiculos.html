@@ -1,0 +1,102 @@
+<div class="page">
+  <div class="shell">
+    <header class="head">
+      <div class="head-left">
+        <div class="title">Meus Veículos</div>
+        <div class="sub">Cadastre um veículo para reservar tickets com mais rapidez.</div>
+      </div>
+      <button class="btn primary" type="button" (click)="abrirNovo()">
+        <span class="material-icons">add</span>
+        Novo veículo
+      </button>
+    </header>
+    <div class="msg error" *ngIf="erro">{{ erro }}</div>
+    <div class="msg loading" *ngIf="carregando">
+      <span class="dot"></span>
+      Carregando veículos...
+    </div>
+    <section class="empty" *ngIf="!carregando && !erro && veiculos.length === 0">
+      <div class="empty-card">
+        <div class="empty-text">
+          <div class="empty-title">Você ainda não cadastrou nenhum veículo.</div>
+          <div class="empty-sub">
+            Cadastre agora para reservar tickets e usar o mapa com as zonas disponíveis.
+          </div>
+          <button class="btn primary cta" type="button" (click)="abrirNovo()">
+            <span class="material-icons">directions_car</span>
+            Cadastrar primeiro veículo
+          </button>
+        </div>
+        <img class="empty-img" [src]="easyParkImg" alt="Ilustração de veículo"/>
+      </div>
+    </section>
+    <section class="list" *ngIf="!carregando && !erro && veiculos.length > 0">
+      <div class="list-head">
+        <div class="list-title">Lista</div>
+        <div class="pager" *ngIf="totalPages > 1">
+          <button class="icon" type="button" (click)="prev()" [disabled]="page<=0" title="Anterior">
+            <span class="material-icons">chevron_left</span>
+          </button>
+          <div class="pager-text">
+            Página {{ page + 1 }} de {{ totalPages }} • {{ totalElements }} veículos
+          </div>
+          <button class="icon" type="button" (click)="next()" [disabled]="totalPages && page>=totalPages-1"
+                  title="Próxima">
+            <span class="material-icons">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      <div class="row" *ngFor="let v of veiculos; trackBy: trackById">
+        <div class="row-left">
+          <div class="placa">{{ placaOf(v) }}</div>
+          <div class="meta">Veículo cadastrado</div>
+        </div>
+        <span class="chip" [ngClass]="badgeTipo(tipoOf(v))">
+          {{ tipoLabel(tipoOf(v)) }}
+        </span>
+        <div class="row-actions">
+          <button class="action edit" type="button" (click)="abrirEditar(v)" title="Editar">
+            <span class="material-icons">edit</span>
+            Editar
+          </button>
+          <button class="action trash" type="button" (click)="abrirConfirmarExcluir(v, $event)" title="Excluir">
+            <span class="material-icons">delete</span>
+            Excluir
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+  <app-veiculos-form
+    [aberto]="aberto"
+    [veiculo]="veiculoEdit"
+    [idDono]="idUsuarioLogado"
+    [modoAdmin]="false"
+    (fechar)="fecharModal()"
+    (atualizado)="atualizado()"
+  ></app-veiculos-form>
+  <div class="confirm-backdrop" *ngIf="confirmarExcluirAberto" (click)="fecharConfirmarExcluir()"></div>
+  <section class="confirm" *ngIf="confirmarExcluirAberto" role="dialog" aria-modal="true">
+    <header class="confirm-head">
+      <div class="confirm-title">Excluir veículo</div>
+      <button class="x" type="button" (click)="fecharConfirmarExcluir()" aria-label="Fechar">
+        <span class="material-icons">close</span>
+      </button>
+    </header>
+    <div class="confirm-body">
+      <div class="confirm-text">
+        Tem certeza que deseja excluir o veículo placa <b>{{ placaExcluir }}</b>?
+      </div>
+      <div class="confirm-sub">Essa ação não poderá ser desfeita.</div>
+    </div>
+    <footer class="confirm-actions">
+      <button class="btn ghost" type="button" (click)="fecharConfirmarExcluir()" [disabled]="carregando">
+        Cancelar
+      </button>
+      <button class="btn danger" type="button" (click)="confirmarExcluir()" [disabled]="carregando">
+        <span class="material-icons">delete</span>
+        Excluir
+      </button>
+    </footer>
+  </section>
+</div>

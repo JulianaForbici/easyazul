@@ -1,0 +1,117 @@
+<section class="pf">
+  <div class="pf-shell">
+    <div class="pf-card">
+      <header class="pf-head">
+        <div class="pf-head-left">
+          <div class="pf-title">Meu Perfil</div>
+          <div class="pf-sub">Atualize seus dados e acompanhe seu tipo/status no sistema.</div>
+        </div>
+
+        <img class="pf-art" [src]="parkingImg" alt="Ilustração estacionamento" />
+      </header>
+
+      <div class="pf-meta" *ngIf="!carregando && usuario as u">
+        <span class="pf-pill">Tipo: <b>{{ u.tipo }}</b></span>
+        <span class="pf-pill" *ngIf="u.status">Status: <b>{{ u.status }}</b></span>
+      </div>
+
+      <div class="pf-loading" *ngIf="carregando">
+        <div class="pf-sk"></div>
+        <div class="pf-sk"></div>
+        <div class="pf-sk"></div>
+      </div>
+
+      <form class="pf-form" *ngIf="!carregando && usuario" #f="ngForm" (ngSubmit)="salvar()">
+        <label class="pf-field pf-full">
+          <span class="pf-label">Nome</span>
+          <input class="pf-input" name="nome" [(ngModel)]="form.nome" required />
+        </label>
+
+        <label class="pf-field pf-full">
+          <span class="pf-label">E-mail</span>
+          <input class="pf-input" name="email" [(ngModel)]="form.email" required type="email" />
+        </label>
+
+        <label class="pf-field">
+          <span class="pf-label">Telefone</span>
+          <input class="pf-input" name="telefone" [(ngModel)]="form.telefone" required [appMaskInput]="'telefone'" />
+        </label>
+
+        <label class="pf-field">
+          <span class="pf-label">Nova senha (opcional)</span>
+          <input class="pf-input" name="senha" [(ngModel)]="form.senha" type="password" minlength="6" />
+          <span class="pf-hint">Deixe em branco para manter a senha atual.</span>
+        </label>
+
+        <!-- CPF -->
+        <label
+          class="pf-field pf-full"
+          *ngIf="['ADMINISTRADOR','FISCAL'].includes((usuario.tipo || '').toUpperCase())"
+        >
+          <span class="pf-label">CPF</span>
+          <input class="pf-input" name="cpf" [(ngModel)]="form.cpf" [appMaskInput]="'cpf'" />
+        </label>
+
+        <!-- CNPJ -->
+        <label class="pf-field pf-full" *ngIf="(usuario.tipo || '').toUpperCase() === 'EMPRESA'">
+          <span class="pf-label">CNPJ</span>
+          <input class="pf-input" name="cnpj" [(ngModel)]="form.cnpj" [appMaskInput]="'cnpj'" />
+        </label>
+
+        <div class="pf-actions">
+          <button class="pf-btn" type="submit" [disabled]="f.invalid || salvando">
+            <span class="material-icons" *ngIf="!salvando">save</span>
+            <span class="material-icons pf-spin" *ngIf="salvando">progress_activity</span>
+            <span>{{ salvando ? 'Salvando…' : 'Salvar' }}</span>
+          </button>
+
+          <button class="pf-btn danger" type="button" (click)="abrirModalInativar()" [disabled]="salvando">
+            <span class="material-icons">person_off</span>
+            <span>Inativar conta</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="pf-toast" *ngIf="toastMsg" [attr.data-variant]="toastVariant" role="status" aria-live="polite">
+    <span class="material-icons">{{ toastIcon() }}</span>
+    <div class="pf-toast-text">{{ toastMsg }}</div>
+
+    <button class="pf-toast-x" type="button" (click)="clearToast()" aria-label="Fechar">
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+
+  <!-- MODAL INATIVAR -->
+  <ng-container *ngIf="modalInativarAberto">
+    <div class="pf-modal-back" (click)="fecharModalInativar()"></div>
+
+    <section class="pf-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <header class="pf-modal-head">
+        <div class="pf-modal-title">Inativar conta</div>
+
+        <button class="pf-icon" type="button" (click)="fecharModalInativar()" [disabled]="inativando" aria-label="Fechar">
+          <span class="material-icons">close</span>
+        </button>
+      </header>
+
+      <div class="pf-modal-body">
+        <div class="pf-md">
+          Tem certeza que deseja inativar sua conta?
+          <div class="pf-md-sub">Você será desconectada e não poderá acessar o sistema com esta conta.</div>
+        </div>
+      </div>
+
+      <footer class="pf-modal-foot">
+        <button class="pf-btn ghost" type="button" (click)="fecharModalInativar()" [disabled]="inativando">Voltar</button>
+        <button class="pf-btn danger" type="button" (click)="confirmarInativar()" [disabled]="inativando">
+          <span class="material-icons" *ngIf="!inativando">close</span>
+          <span class="material-icons pf-spin" *ngIf="inativando">progress_activity</span>
+          <span>Inativar</span>
+        </button>
+      </footer>
+    </section>
+  </ng-container>
+</section>

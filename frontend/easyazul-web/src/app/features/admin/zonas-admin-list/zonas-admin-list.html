@@ -1,0 +1,178 @@
+<div class="page">
+  <div class="shell">
+    <div class="ez-head">
+      <div class="ez-title">
+        <div class="ez-h1">Listagem de Zonas</div>
+        <div class="ez-sub">Gerencie as zonas cadastradas no sistema e acompanhe o status de cada registro.</div>
+      </div>
+      <button class="btn primary" type="button" (click)="novo()">
+        <span class="material-icons">add_location_alt</span>
+        Nova
+      </button>
+    </div>
+
+    <section class="card">
+      <div class="ez-toolbar">
+        <div class="ez-search">
+          <span class="material-icons">search</span>
+
+          <input
+            type="text"
+            placeholder="Buscar por nome, descrição ou endereço…"
+            [(ngModel)]="busca"
+            name="busca"
+            (input)="aplicarBusca()"
+          />
+
+          <button
+            class="icon-btn"
+            type="button"
+            title="Limpar"
+            (click)="busca=''; aplicarBusca()"
+            [disabled]="!busca"
+          >
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <div class="pills" title="Filtrar por status">
+          <button class="pill" [class.active]="filtroStatus==='TODAS'" (click)="setFiltro('TODAS')">Todas</button>
+          <button class="pill ok" [class.active]="filtroStatus==='ATIVAS'" (click)="setFiltro('ATIVAS')">Ativas</button>
+          <button class="pill bad" [class.active]="filtroStatus==='INATIVAS'" (click)="setFiltro('INATIVAS')">Inativas</button>
+        </div>
+      </div>
+
+      <div class="ez-content">
+        <div *ngIf="!carregando && erro" class="ez-state ez-error">
+          <span class="material-icons">error</span>
+          <div class="txt">{{ erro }}</div>
+          <button class="btn" type="button" (click)="carregar()">Tentar novamente</button>
+        </div>
+
+        <div *ngIf="carregando" class="ez-skeleton">
+          <div class="sk"></div>
+          <div class="sk"></div>
+          <div class="sk"></div>
+        </div>
+
+        <div class="table-card" *ngIf="!carregando && !erro">
+          <table>
+            <thead>
+            <tr>
+              <th>Zona</th>
+              <th>Tarifa</th>
+              <th>Tempo</th>
+              <th>Horário</th>
+              <th>Capacidade</th>
+              <th>Status</th>
+              <th class="right">Ações</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr
+              *ngFor="let z of zonasFiltradas; let i = index; trackBy: trackById"
+              class="row-anim"
+              [style.--i]="i"
+            >
+              <td>
+                <div class="name">
+                  <div class="main">{{ nomeOf(z) }}</div>
+                  <div class="subline">ID {{ getId(z) }}</div>
+                </div>
+              </td>
+
+              <td class="muted">{{ tarifaLabel(z) }}</td>
+              <td class="muted">{{ tempoLabel(z) }}</td>
+              <td class="muted">{{ horarioLabel(z) }}</td>
+              <td class="muted">{{ capacidadeLabel(z) }}</td>
+
+              <td>
+                  <span class="pill status" [ngClass]="statusPillClass(z)">
+                    {{ statusLabel(z) }}
+                  </span>
+              </td>
+
+              <td class="right" (click)="$event.stopPropagation()">
+                <button class="ez-icon" type="button" title="Detalhar" (click)="detalhar(z)">
+                  <span class="material-icons">info</span>
+                </button>
+
+                <button
+                  class="ez-icon"
+                  type="button"
+                  title="Editar"
+                  (click)="editar(z)"
+                  [disabled]="statusZonaOf(z)==='INATIVA'"
+                >
+                  <span class="material-icons">edit</span>
+                </button>
+
+                <button
+                  class="ez-icon bad trash"
+                  type="button"
+                  title="Inativar"
+                  (click)="inativar(z)"
+                  [disabled]="statusZonaOf(z)==='INATIVA'"
+                >
+                  <span class="material-icons">delete</span>
+                </button>
+              </td>
+            </tr>
+
+            <tr *ngIf="zonasFiltradas.length === 0">
+              <td colspan="7" class="empty">Nenhuma zona encontrada.</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pager" *ngIf="pageData">
+        <button class="btn ghost" type="button" (click)="prev()" [disabled]="isFirst || carregando">
+          <span class="material-icons">chevron_left</span>
+          Anterior
+        </button>
+
+        <div class="pager-meta">
+          Página <b>{{ pageData.number + 1 }}</b>
+          <span class="sep">•</span>
+          <b>{{ pageData.totalPages }}</b> Páginas
+          <span class="sep">•</span>
+          <b>{{ pageData.totalElements }}</b> Registros
+        </div>
+
+        <button class="btn ghost" type="button" (click)="next()" [disabled]="isLast || carregando">
+          Próxima
+          <span class="material-icons">chevron_right</span>
+        </button>
+      </div>
+    </section>
+
+    <div class="modal-backdrop" *ngIf="modalAberto" (click)="fecharModal()">
+      <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <div class="modal-title">{{ modalTitulo }}</div>
+          <button class="icon-btn" type="button" (click)="fecharModal()" aria-label="Fechar">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <div class="modal-body" [innerHTML]="modalHtml"></div>
+
+        <div class="modal-actions">
+          <button class="btn ghost" type="button" (click)="fecharModal()" [disabled]="carregando">Cancelar</button>
+          <button
+            class="btn primary"
+            type="button"
+            *ngIf="acaoConfirmar"
+            (click)="acaoConfirmar()"
+            [disabled]="carregando"
+          >
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

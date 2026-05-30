@@ -1,0 +1,152 @@
+<div class="home">
+  <header class="topbar">
+    <div class="topbar-shell">
+      <div class="brand">
+        <img class="brand-logo" [src]="logoBlue" alt="EasyAzul" />
+        <div class="brand-text">
+          <div class="brand-name">EasyAzul</div>
+          <div class="brand-city">Blumenau</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-link" href="#servicos">Serviços</a>
+        <a class="nav-link" href="#mapa">Localidades</a>
+        <a class="nav-link" routerLink="/mapa">Mapa</a>
+      </nav>
+
+      <div class="topbar-actions">
+        <a class="btn btn-primary" routerLink="/cadastro" [queryParams]="{ tipo: 'PF' }">Para Você</a>
+        <a class="btn btn-ghost" routerLink="/cadastro" [queryParams]="{ tipo: 'PJ' }">Para Empresa</a>
+        <a class="btn btn-ghost" routerLink="/login">Entrar</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-media">
+      <video class="hero-video" [src]="heroVideo" autoplay muted loop playsinline preload="auto"></video>
+      <div class="hero-overlay"></div>
+    </div>
+
+    <div class="hero-shell">
+      <div class="hero-grid">
+        <div class="hero-left">
+          <div class="hero-eyebrow">Área Azul • Blumenau</div>
+
+          <h1 class="hero-title">
+            Estacione com regras claras,
+            <span class="grad">mapa</span> e
+            <span class="grad2">segurança</span>.
+          </h1>
+
+          <p class="hero-sub">
+            Abra ticket, acompanhe zonas e pague com consistência.
+            Tudo alinhado às regras de <b>horário</b> e <b>tempo máximo</b> por zona.
+          </p>
+
+          <div class="hero-ctas">
+            <a class="btn btn-primary btn-lg" routerLink="/cadastro" [queryParams]="{ tipo: 'PF' }">Para Você</a>
+            <a class="btn btn-ghost btn-lg" routerLink="/cadastro" [queryParams]="{ tipo: 'PJ' }">Para Empresa</a>
+            <a class="btn btn-ghost btn-lg" routerLink="/login">Entrar</a>
+          </div>
+
+          <div class="hero-kpis">
+            <div class="kpi">
+              <span>Mapa</span>
+              <b>Zonas & pins</b>
+            </div>
+            <div class="kpi">
+              <span>Fluxo</span>
+              <b>Ticket → Pagamento</b>
+            </div>
+            <div class="kpi">
+              <span>Perfis</span>
+              <b>Admin / Fiscal / Usuário</b>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-right" aria-hidden="true">
+          <img class="car-art" [src]="carArt" alt="" />
+        </div>
+      </div>
+    </div>
+
+    <div class="chevrons" aria-hidden="true">
+      <span class="chev" *ngFor="let _ of chevrons; let i = index" [style.--i]="i"></span>
+    </div>
+  </section>
+
+  <section id="servicos" class="features">
+    <div class="features-shell">
+      <div class="features-head">
+        <h2>A EasyAzul na palma da sua mão</h2>
+        <p>
+          Estacionamento rotativo de <b>Blumenau</b> com mapa, validações e segurança ponta a ponta.
+          Sem burocracia e em poucos cliques a sua vida fica mais simples, prática e fácil.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <article class="fcard" *ngFor="let f of features">
+          <div class="ficon">
+            <img [src]="f.img" [alt]="f.title" />
+          </div>
+          <h3>{{ f.title }}</h3>
+          <p>{{ f.desc }}</p>
+        </article>
+      </div>
+
+      <div class="split">
+        <div class="split-text">
+          <div class="split-title">Aproveite a EasyAzul do seu jeito</div>
+          <div class="split-sub">Estacionamento rotativo</div>
+          <p>
+            Agora você pode estacionar utilizando a EasyAzul, sem precisar contar moedas
+            ou procurar parquímetros. Tudo com regras e permissões consistentes.
+          </p>
+
+          <div class="split-ctas">
+            <a class="btn btn-primary" routerLink="/cadastro" [queryParams]="{ tipo: 'PF' }">Para Você</a>
+            <a class="btn btn-ghost" routerLink="/cadastro" [queryParams]="{ tipo: 'PJ' }">Para Empresa</a>
+            <a class="btn btn-ghost" routerLink="/login">Entrar</a>
+          </div>
+        </div>
+
+        <div class="split-media" aria-hidden="true">
+          <img class="split-img" [src]="easyPark" alt="" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="mapa" class="map">
+    <div class="map-shell">
+      <div class="map-head">
+        <div class="crumb">LOCALIDADES</div>
+        <h2>Onde estamos</h2>
+        <p>Atendimento e operação atualmente em <b>Blumenau (SC)</b>.</p>
+      </div>
+
+      <div class="map-grid">
+        <div class="map-card">
+          <div class="map-cta">
+            <span class="dot"></span>
+            <div>
+              <b>Blumenau</b>
+              <div class="muted">Santa Catarina</div>
+            </div>
+          </div>
+
+          <a class="btn btn-primary" routerLink="/login">Acessar o sistema</a>
+        </div>
+
+        <div class="map-figure">
+          <img class="map-img" [src]="mapaBrasil" alt="Mapa do Brasil" />
+          <div class="pin" title="Blumenau - SC"><span></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

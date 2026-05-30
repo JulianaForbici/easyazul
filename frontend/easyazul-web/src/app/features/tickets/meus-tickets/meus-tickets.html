@@ -1,0 +1,267 @@
+<div class="page">
+  <div class="shell">
+    <div class="ez-head">
+      <div class="ez-title">
+        <div class="ez-h1">Meus Tickets</div>
+        <div class="ez-sub">Acompanhe reservas, tickets ativos e históricos.</div>
+      </div>
+
+      <div class="ez-chips">
+        <div class="ez-chip">
+          <div class="k">Ativos</div>
+          <div class="v">{{ totalAtivos }}</div>
+        </div>
+        <div class="ez-chip warn">
+          <div class="k">Reservas</div>
+          <div class="v">{{ totalReservados }}</div>
+        </div>
+        <div class="ez-chip muted">
+          <div class="k">Fechados</div>
+          <div class="v">{{ totalFechados }}</div>
+        </div>
+        <div class="ez-chip bad">
+          <div class="k">Cancelados</div>
+          <div class="v">{{ totalCancelados }}</div>
+        </div>
+      </div>
+    </div>
+    <section class="card">
+      <div class="ez-toolbar">
+        <div class="ez-search">
+          <span class="material-icons">search</span>
+          <input
+            type="text"
+            placeholder="Buscar por placa, zona ou status…"
+            [(ngModel)]="busca"
+            (input)="aplicarBusca()"
+          />
+          <button
+            class="icon-btn"
+            type="button"
+            title="Limpar"
+            (click)="busca=''; aplicarBusca()"
+            [disabled]="!busca"
+          >
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+      </div>
+      <div class="pills">
+        <button class="pill" [class.active]="filtroStatus==='TODOS'" (click)="setFiltro('TODOS')">Todos</button>
+        <button class="pill ok" [class.active]="filtroStatus==='ATIVO'" (click)="setFiltro('ATIVO')">Ativos</button>
+        <button class="pill warn" [class.active]="filtroStatus==='RESERVADO'" (click)="setFiltro('RESERVADO')">Reservas</button>
+        <button class="pill muted" [class.active]="filtroStatus==='FECHADO'" (click)="setFiltro('FECHADO')">Fechados</button>
+        <button class="pill bad" [class.active]="filtroStatus==='CANCELADO'" (click)="setFiltro('CANCELADO')">Cancelados</button>
+      </div>
+      <div class="ez-content">
+        <div *ngIf="carregando" class="ez-skeleton">
+          <div class="sk"></div>
+          <div class="sk"></div>
+          <div class="sk"></div>
+        </div>
+
+        <div *ngIf="!carregando && erro" class="ez-state ez-error">
+          <span class="material-icons">error</span>
+          <div class="txt">{{ erro }}</div>
+          <button class="btn" type="button" (click)="carregar()">Tentar novamente</button>
+        </div>
+
+        <div *ngIf="!carregando && !erro && ticketsFiltrados.length===0" class="ez-state ez-empty">
+          <span class="material-icons">local_parking</span>
+          <div class="txt">Nenhum ticket encontrado.</div>
+        </div>
+
+        <div class="ez-list" *ngIf="!carregando && !erro && ticketsFiltrados.length>0">
+          <div class="ez-row" *ngFor="let t of ticketsFiltrados; trackBy: trackById">
+            <div class="ez-row-main">
+              <div class="r1">
+                <div class="placa">{{ placaOf(t) }}</div>
+
+                <span class="status-pill" [ngClass]="statusPillClass(t)">
+                  {{ statusLabel(t) }}
+                </span>
+              </div>
+
+              <div class="r2">
+                <span class="material-icons">place</span>
+                <div class="zona">{{ zonaOf(t) }}</div>
+              </div>
+
+              <div class="r3">
+                <div class="meta">
+                  <span class="material-icons">schedule</span>
+                  <span>Início: {{ inicioLabel(t) }}</span>
+                </div>
+                <div class="meta">
+                  <span class="material-icons">flag</span>
+                  <span>Fim: {{ fimLabel(t) }}</span>
+                </div>
+                <div class="meta">
+                  <span class="material-icons">payments</span>
+                  <span>Valor: {{ valorLabel(t) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ez-row-actions">
+              <button class="ez-icon" type="button" title="Detalhes" (click)="detalhar(t)">
+                <span class="material-icons">info</span>
+              </button>
+
+              <button class="ez-icon ok" type="button" title="Iniciar" (click)="iniciar(t)" [disabled]="!podeIniciar(t)">
+                <span class="material-icons">play_arrow</span>
+              </button>
+
+              <button class="ez-icon bad" type="button" title="Cancelar" (click)="cancelar(t)" [disabled]="!podeCancelar(t)">
+                <span class="material-icons">cancel</span>
+              </button>
+
+              <button class="ez-icon warn" type="button" title="Fechar" (click)="fechar(t)" [disabled]="!podeFechar(t)">
+                <span class="material-icons">done_all</span>
+              </button>
+
+              <button
+                *ngIf="exibePagar(t)"
+                class="ez-icon pay"
+                type="button"
+                [title]="pagarTitle(t)"
+                [disabled]="temPagamentoEmAberto(t)"
+                (click)="abrirPagar(t)"
+              >
+                <span class="material-icons">credit_card</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pager" *ngIf="pageData">
+        <button class="btn ghost" type="button" (click)="prev()" [disabled]="isFirst">
+          <span class="material-icons">chevron_left</span>
+          Anterior
+        </button>
+        <div class="pager-meta">
+          Página <b>{{ pageData.number + 1 }}</b> • <b>{{ pageData.totalPages }}</b> Páginas • <b>{{ pageData.totalElements }}</b> Registros
+        </div>
+        <button class="btn ghost" type="button" (click)="next()" [disabled]="isLast">
+          Próxima
+          <span class="material-icons">chevron_right</span>
+        </button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<ng-container *ngIf="modalAberto">
+  <div class="modal-backdrop" (click)="fecharModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="modal-title">{{ modalTitulo }}</div>
+        <button class="icon-btn" type="button" (click)="fecharModal()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body" [innerHTML]="modalHtml"></div>
+
+      <div class="modal-actions">
+        <button class="btn ghost" type="button" (click)="fecharModal()">Sair</button>
+        <button class="btn" type="button" *ngIf="acaoConfirmar" (click)="acaoConfirmar()">
+          {{ textoConfirmar }}
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="pagarAberto">
+  <div class="modal-backdrop" (click)="fecharPagar()">
+    <form
+      class="modal pay-modal"
+      #f="ngForm"
+      (ngSubmit)="confirmarPagamento()"
+      (click)="closeFormaMenu(); $event.stopPropagation()"
+    >
+      <div class="modal-head">
+        <div class="modal-title">Pagar Ticket</div>
+        <button class="icon-btn" type="button" (click)="fecharPagar()" [disabled]="pagando">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="pay-summary" *ngIf="ticketPagar">
+          <div><b>Ticket:</b> {{ ticketCodigo(ticketPagar) }}</div>
+          <div><b>Placa:</b> {{ placaOf(ticketPagar) }}</div>
+          <div><b>Zona:</b> {{ zonaOf(ticketPagar) }}</div>
+          <div><b>Valor:</b> {{ valorLabel(ticketPagar) }}</div>
+        </div>
+
+        <div class="ez-form-grid">
+          <label class="ez-field">
+            <div class="ez-lbl">Forma de pagamento</div>
+
+            <div class="ez-select" [class.open]="formaMenuAberto">
+              <button
+                type="button"
+                class="ez-select-btn"
+                (click)="toggleFormaMenu(); $event.stopPropagation()"
+                [disabled]="pagando"
+              >
+                <span class="ez-select-val">{{ formaPagamentoLabel(formaPagamento) }}</span>
+                <span class="material-icons ez-chev">expand_more</span>
+              </button>
+
+              <div class="ez-select-menu" *ngIf="formaMenuAberto">
+                <button
+                  class="ez-select-opt"
+                  type="button"
+                  *ngFor="let f of formasPagamento"
+                  (click)="selecionarForma(f); $event.stopPropagation()"
+                >
+                  {{ formaPagamentoLabel(f) }}
+                </button>
+              </div>
+            </div>
+
+            <input name="formaPagamento" type="text" style="display:none" [(ngModel)]="formaPagamento" required />
+          </label>
+
+          <label class="ez-field">
+            <div class="ez-lbl">Código de referência (opcional)</div>
+            <input
+              class="ez-ctrl"
+              name="codigoReferencia"
+              type="text"
+              maxlength="80"
+              [(ngModel)]="codigoReferencia"
+              [disabled]="pagando"
+              placeholder="Ex: TXID do PIX, código do boleto, etc."
+            />
+          </label>
+
+          <label class="ez-field ez-field-full">
+            <div class="ez-lbl">Observação (opcional)</div>
+            <textarea
+              class="ez-ctrl"
+              name="observacaoPagamento"
+              rows="3"
+              maxlength="255"
+              [(ngModel)]="observacaoPagamento"
+              [disabled]="pagando"
+              placeholder="Ex: paguei via app do banco, comprovante enviado…"
+            ></textarea>
+          </label>
+        </div>
+
+        <div class="err" *ngIf="pagarErro">{{ pagarErro }}</div>
+        <div class="hint">O pagamento será criado como <b>PENDENTE</b> e deverá ser confirmado pelo Fiscal/Administrador.</div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn ghost" type="button" (click)="fecharPagar()" [disabled]="pagando">Cancelar</button>
+        <button class="btn" type="submit" [disabled]="pagando || f.invalid">Pagar</button>
+      </div>
+    </form>
+  </div>
+</ng-container>

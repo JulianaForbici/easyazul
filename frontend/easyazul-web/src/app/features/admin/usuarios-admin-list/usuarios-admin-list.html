@@ -1,0 +1,105 @@
+<div class="page">
+  <div class="shell">
+    <div class="ez-head">
+      <div>
+        <div class="ez-h1">Listagem de Usuários</div>
+        <div class="ez-sub">Gerencie usuários, permissões e status.</div>
+      </div>
+      <div class="actions">
+        <div class="ez-search">
+          <span class="material-icons">search</span>
+          <input
+            placeholder="Buscar por nome, e-mail ou tipo…"
+            [(ngModel)]="busca"
+            (input)="aplicarBusca()"
+          />
+        </div>
+        <button class="btn primary" type="button" (click)="novo()">
+          <span class="material-icons">person_add</span>
+          Novo
+        </button>
+      </div>
+    </div>
+    <div class="alert" *ngIf="erro">{{ erro }}</div>
+    <div class="card table-card">
+      <div class="loading" *ngIf="carregando">Carregando…</div>
+      <table *ngIf="!carregando">
+        <thead>
+        <tr>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Tipo</th>
+          <th>Status</th>
+          <th class="right">Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let u of usuariosFiltrados">
+          <td>
+            <div class="name">
+              <div class="main">{{ u.nome }}</div>
+              <div class="sub">ID {{ u.id }} • {{ u.telefone }}</div>
+            </div>
+          </td>
+          <td class="muted">{{ u.email }}</td>
+          <td>
+            <span class="pill" [ngClass]="u.tipo.toLowerCase()">{{ u.tipo }}</span>
+          </td>
+          <td>
+              <span class="pill status" [ngClass]="u.status === 'ATIVO' ? 'ok' : 'bad'">
+                {{ u.status }}
+              </span>
+          </td>
+          <td class="right">
+            <button class="icon" type="button" title="Detalhar" (click)="detalhar(u)">
+              <span class="material-icons">info</span>
+            </button>
+            <button class="icon" type="button" title="Editar" (click)="editar(u)">
+              <span class="material-icons">edit</span>
+            </button>
+            <button class="icon danger" type="button" title="Inativar" (click)="inativar(u)">
+              <span class="material-icons">person_off</span>
+            </button>
+            <button *ngIf="u.status !== 'ATIVO'" class="icon ok" type="button" title="Reativar" (click)="reativar(u)">
+              <span class="material-icons">person_add</span>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="usuariosFiltrados.length === 0">
+          <td colspan="5" class="empty">Nenhum usuário encontrado.</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pager" *ngIf="pageData">
+      <button class="btn ghost" type="button" (click)="prev()" [disabled]="isFirst">
+        <span class="material-icons">chevron_left</span>
+        Anterior
+      </button>
+      <div class="pager-meta">
+        Página <b>{{ pageData.number + 1 }}</b> •
+        <b>{{ pageData.totalPages }}</b> Páginas •
+        <b>{{ pageData.totalElements }}</b> Registros
+      </div>
+      <button class="btn ghost" type="button" (click)="next()" [disabled]="isLast">
+        Próxima
+        <span class="material-icons">chevron_right</span>
+      </button>
+    </div>
+    <div class="modal-backdrop" *ngIf="modalAberto" (click)="fecharModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <div class="modal-title">{{ modalTitulo }}</div>
+          <button class="ez-icon" type="button" (click)="fecharModal()">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="modal-body" [innerHTML]="modalHtml"></div>
+        <div class="modal-actions">
+          <button class="btn ghost" type="button" (click)="fecharModal()">Cancelar</button>
+          <button class="btn primary" type="button" *ngIf="acaoConfirmar" (click)="acaoConfirmar()">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

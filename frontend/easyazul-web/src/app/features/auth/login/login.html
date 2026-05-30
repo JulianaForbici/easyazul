@@ -1,0 +1,62 @@
+<div class="page">
+  <section class="hero">
+    <div class="brand">
+      <div class="logo">
+        <span class="dot"></span>
+        <span>EasyAzul</span>
+      </div>
+
+      <h1>Bem-vinda(o) ao <span class="grad">EasyAzul</span>.</h1>
+      <p>Saiba como funciona o estacionamento rotativo de Blumenau.</p>
+
+      <div class="bullets">
+        <div class="pill">Zonas e tarifas</div>
+        <div class="pill">Tickets em tempo real</div>
+        <div class="pill">Pagamentos e histórico</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="card">
+      <h2>Entrar</h2>
+      <p class="subtitle">Use seu e-mail e senha.</p>
+
+      <form (ngSubmit)="entrar()" #f="ngForm" novalidate>
+        <label>
+          <span>E-mail</span>
+          <input
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            required
+            autocomplete="username"
+            placeholder="Ex: fulano@email.com" />
+        </label>
+
+        <label>
+          <span>Senha</span>
+          <input
+            type="password"
+            name="senha"
+            [(ngModel)]="senha"
+            required
+            autocomplete="current-password"
+            placeholder="Senha" />
+        </label>
+
+        <button class="btn" [disabled]="f.invalid || carregando">
+          <span *ngIf="!carregando">Entrar</span>
+          <span *ngIf="carregando">Entrando…</span>
+        </button>
+
+        <p class="error" *ngIf="erro">{{ erro }}</p>
+
+        <div class="links">
+          <a href="#">Esqueci minha senha</a>
+          <a class="link" routerLink="/cadastro">Criar conta</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>

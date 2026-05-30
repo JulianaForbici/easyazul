@@ -1,0 +1,248 @@
+<div class="page">
+  <div class="shell">
+    <section class="card map-frame">
+      <div class="map-shell" [class.fullscreen]="fullscreen">
+        <div id="map" class="map"></div>
+
+        <div class="overlay-msg glass" *ngIf="carregandoZonas">Carregando zonas...</div>
+        <div class="overlay-msg glass error" *ngIf="!carregandoZonas && erroZonas">{{ erroZonas }}</div>
+        <div class="overlay-msg glass" *ngIf="!carregandoZonas && !erroZonas && zonas.length === 0">
+          Nenhuma zona encontrada.
+        </div>
+
+        <div class="legend glass">
+          <div class="legend-title">Zonas</div>
+
+          <div class="legend-row">
+            <span class="material-icons pin pin-green">place</span>
+            <span class="legend-text">Verde — vagas disponíveis</span>
+          </div>
+
+          <div class="legend-row">
+            <span class="material-icons pin pin-yellow">place</span>
+            <span class="legend-text">Amarelo — quase lotado</span>
+          </div>
+
+          <div class="legend-row">
+            <span class="material-icons pin pin-red">place</span>
+            <span class="legend-text">Vermelho — lotado</span>
+          </div>
+
+          <div class="legend-row">
+            <span class="material-icons pin pin-user-blue">person_pin_circle</span>
+            <span class="legend-text">Você — localização atual</span>
+          </div>
+        </div>
+
+        <div class="nearby glass" *ngIf="zonasProximas.length > 0">
+          <div class="nearby-title">Zonas próximas</div>
+
+          <button class="nearby-row" type="button" *ngFor="let z of zonasProximas" (click)="focarZona(z)">
+            <span class="material-icons nearby-ic">place</span>
+
+            <div class="nearby-main">
+              <div class="nearby-name">{{ z.nome }}</div>
+              <div class="nearby-sub">
+                {{ z.distanciaKm | number:'1.1-1' }} km •
+                {{ z.vagasDisponiveis }}/{{ z.capacidadeVagas }} livres
+              </div>
+            </div>
+
+            <span class="status-pill" [ngClass]="statusClass(z)">
+              {{ statusLabel(z) }}
+            </span>
+          </button>
+        </div>
+
+        <div class="controls">
+          <button class="fab" type="button" (click)="alternarFullscreen()" title="Minimizar/Maximizar">
+            <span class="material-icons">{{ fullscreen ? 'close_fullscreen' : 'open_in_full' }}</span>
+          </button>
+
+          <button class="fab" type="button" (click)="minhaLocalizacao()" title="Minha localização">
+            <span class="material-icons">my_location</span>
+          </button>
+        </div>
+
+        <button
+          class="btn danger map-route"
+          type="button"
+          *ngIf="zonaSelecionada as z"
+          (click)="abrirRotaNoGoogleMaps(z)"
+          title="Traçar rota no Google Maps"
+        >
+          <span class="material-icons">alt_route</span>
+          Rota
+        </button>
+
+        <div class="zone-card glass" *ngIf="zonaSelecionada as z">
+          <div class="zone-title">{{ z.nome }}</div>
+
+          <div class="zone-sub">
+            <span class="status-pill" [ngClass]="statusClass(z)">
+              {{ statusLabel(z) }}
+            </span>
+            <span class="zone-metrics">
+              {{ z.vagasDisponiveis }}/{{ z.capacidadeVagas }} vagas livres
+            </span>
+          </div>
+
+          <div class="zone-actions">
+            <button class="btn ghost" type="button" (click)="limparSelecao()">
+              <span class="material-icons">close</span>
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="action-dock glass">
+  <button class="dock-btn ghost" type="button" (click)="voltarHome()">
+    <span class="material-icons">arrow_back</span>
+    Início
+  </button>
+
+  <button
+    class="dock-btn"
+    type="button"
+    (click)="alternarTodasZonas()"
+    [class.active]="mostrarTodasZonas"
+    title="Listar todas as zonas"
+  >
+    <span class="material-icons">format_list_bulleted</span>
+    Zonas
+    <span class="badge">{{ zonas.length }}</span>
+  </button>
+
+  <button
+    class="dock-btn primary"
+    type="button"
+    [disabled]="!zonaSelecionada"
+    (click)="reservarTicket()"
+    title="Reservar ticket na zona selecionada"
+  >
+    <span class="material-icons">confirmation_number</span>
+    Reservar
+  </button>
+</div>
+
+<div class="allzones glass" *ngIf="mostrarTodasZonas">
+  <div class="allzones-head">
+    <div class="allzones-title">Todas as zonas</div>
+
+    <button class="icon-btn" type="button" (click)="alternarTodasZonas()" title="Fechar">
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+
+  <button class="allzones-row" type="button" *ngFor="let z of zonas" (click)="focarZona(z)">
+    <span class="material-icons allzones-ic">place</span>
+
+    <div class="allzones-main">
+      <div class="allzones-name">{{ z.nome }}</div>
+      <div class="allzones-sub">
+        {{ z.vagasDisponiveis }}/{{ z.capacidadeVagas }} livres
+      </div>
+    </div>
+
+    <span class="status-pill" [ngClass]="statusClass(z)">
+      {{ statusLabel(z) }}
+    </span>
+  </button>
+</div>
+
+<div class="veh-bar glass">
+  <span class="veh-label">Veículo:</span>
+  <span class="veh-value" [class.muted]="!veiculoAtualId">{{ veiculoAtualLabel }}</span>
+
+  <button class="btn ghost btn-sm" type="button" (click)="abrirTrocarVeiculo()">
+    <span class="material-icons">sync_alt</span>
+    Trocar
+  </button>
+</div>
+
+<ng-container *ngIf="modalVeiculoAberto">
+  <div class="modal-backdrop" (click)="fecharModalVeiculo()">
+    <div class="modal modal-veiculo" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="modal-title">Selecione um veículo</div>
+        <button class="icon-btn" type="button" (click)="fecharModalVeiculo()" aria-label="Fechar">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="md">
+          Para reservar nessa zona, escolha qual veículo será usado.
+        </div>
+
+        <div class="hint" *ngIf="carregandoVeiculos">Carregando seus veículos...</div>
+        <div class="err" *ngIf="erroVeiculos">{{ erroVeiculos }}</div>
+
+        <ng-container *ngIf="!carregandoVeiculos && !erroVeiculos">
+          <div class="empty" *ngIf="veiculos.length === 0">
+            Você ainda não possui veículos cadastrados.
+          </div>
+
+          <div class="vgrid" *ngIf="veiculos.length > 0">
+            <button
+              type="button"
+              class="vcard"
+              *ngFor="let v of veiculos"
+              [class.active]="veiculoSelecionadoId === v.id"
+              (click)="selecionarVeiculo(v)"
+            >
+              <div class="v-top">
+                <div class="v-placa">{{ v.placa }}</div>
+                <span class="tag">{{ v.tipoVeiculo }}</span>
+              </div>
+            </button>
+          </div>
+
+          <div class="hint warn" *ngIf="veiculos.length > 0 && !veiculoSelecionadoId">
+            Selecione um veículo para habilitar “Confirmar”.
+          </div>
+        </ng-container>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn ghost" type="button" (click)="fecharModalVeiculo()">Cancelar</button>
+        <button class="btn ghost" type="button" (click)="irParaCadastroVeiculo()">Cadastrar veículo</button>
+        <button class="btn primary" type="button" (click)="confirmarVeiculo()" [disabled]="carregandoVeiculos || !veiculoSelecionadoId">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="modalMsgAberto">
+  <div class="modal-backdrop" (click)="fecharModalMsg()">
+    <div
+      class="modal modal-msg"
+      [class.ok]="modalMsgTipo==='ok'"
+      [class.bad]="modalMsgTipo==='bad'"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-head">
+        <div class="modal-title">{{ modalMsgTitulo }}</div>
+        <button class="icon-btn" type="button" (click)="fecharModalMsg()" aria-label="Fechar">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="md">{{ modalMsgTexto }}</div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn" type="button" (click)="fecharModalMsg()">Ok</button>
+      </div>
+    </div>
+  </div>
+</ng-container>

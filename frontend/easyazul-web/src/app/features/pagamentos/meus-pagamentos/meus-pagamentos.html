@@ -1,0 +1,305 @@
+<div class="page">
+  <div class="shell">
+    <div class="ez-head">
+      <div class="ez-title">
+        <div class="ez-h1">Meus Pagamentos</div>
+        <div class="ez-sub">Acompanhe status, valores e detalhes dos pagamentos vinculados aos seus tickets.</div>
+      </div>
+    </div>
+
+    <div class="toast" *ngIf="toastMsg" [attr.data-variant]="toastVariant" role="status" aria-live="polite">
+      <span class="material-icons">
+        {{ toastVariant === 'ok' ? 'check_circle' : toastVariant === 'warn' ? 'info' : 'error' }}
+      </span>
+      <div class="toast-text">{{ toastMsg }}</div>
+      <button class="toast-x" type="button" (click)="clearToast()" aria-label="Fechar">×</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat" data-variant="pending">
+        <div class="k">Pendentes</div>
+        <div class="v">{{ qtdPendentes }}</div>
+        <div class="hint">Aguardando confirmação</div>
+      </div>
+
+      <div class="stat" data-variant="ok">
+        <div class="k">Aprovados</div>
+        <div class="v">{{ qtdAprovados }}</div>
+        <div class="hint">Confirmados no sistema</div>
+      </div>
+
+      <div class="stat" data-variant="cancel">
+        <div class="k">Cancelados</div>
+        <div class="v">{{ qtdCancelados }}</div>
+        <div class="hint">Não concluídos</div>
+      </div>
+    </div>
+
+    <section class="card">
+      <div class="ez-toolbar">
+        <div class="ez-search">
+          <span class="material-icons">search</span>
+          <input
+            type="text"
+            placeholder="Buscar por ticket, status, método, valor…"
+            [(ngModel)]="busca"
+            (input)="aplicarBusca()"
+          />
+          <button class="icon-btn" type="button" title="Limpar" (click)="busca=''; aplicarBusca()" [disabled]="!busca">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pills">
+        <button class="pill" [class.active]="filtroStatus==='TODOS'" (click)="setFiltro('TODOS')">Todos</button>
+        <button class="pill warn" [class.active]="filtroStatus==='PENDENTE'" (click)="setFiltro('PENDENTE')">Pendentes</button>
+        <button class="pill ok" [class.active]="filtroStatus==='APROVADO'" (click)="setFiltro('APROVADO')">Aprovados</button>
+        <button class="pill muted" [class.active]="filtroStatus==='RECUSADO'" (click)="setFiltro('RECUSADO')">Recusados</button>
+        <button class="pill bad" [class.active]="filtroStatus==='CANCELADO'" (click)="setFiltro('CANCELADO')">Cancelados</button>
+      </div>
+
+      <div class="ez-content">
+        <div *ngIf="carregando" class="ez-skeleton">
+          <div class="sk"></div>
+          <div class="sk"></div>
+          <div class="sk"></div>
+          <div class="sk"></div>
+        </div>
+
+        <div *ngIf="!carregando && pagamentosFiltrados.length === 0" class="ez-state ez-empty">
+          <span class="material-icons">payments</span>
+          <div class="txt">Nenhum pagamento encontrado.</div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn" type="button" (click)="carregarTudo()">Recarregar</button>
+            <button class="btn ghost" type="button" (click)="busca=''; aplicarBusca()">Limpar busca</button>
+          </div>
+        </div>
+
+        <div *ngIf="!carregando && pagamentosFiltrados.length > 0" class="ez-table">
+          <div class="ez-thead">
+            <div>Pagamento</div>
+            <div>Ticket</div>
+            <div>Método</div>
+            <div>Valor</div>
+            <div>Status</div>
+            <div>Data</div>
+            <div class="th-actions">Ações</div>
+          </div>
+
+          <div
+            class="ez-trow"
+            *ngFor="let p of pagamentos; trackBy: trackById"
+            (click)="abrirDetalhes(p)"
+            role="button"
+            tabindex="0"
+          >
+            <div class="cell mono">{{ pagamentoCodigo(p) }}</div>
+            <div class="cell mono">{{ getTicket(p) }}</div>
+            <div class="cell">{{ metodoLabel(p.metodo) }}</div>
+            <div class="cell mono">{{ formatMoney(p.valor) }}</div>
+
+            <div class="cell">
+              <span class="badge" [attr.data-status]="p.status">{{ statusLabel(p.status) }}</span>
+            </div>
+
+            <div class="cell">{{ formatDate(p.dataPagamento) }}</div>
+
+            <div class="cell actions" (click)="$event.stopPropagation()">
+              <button
+                *ngIf="podeCancelar(p)"
+                class="ez-icon bad"
+                type="button"
+                title="Cancelar pagamento"
+                aria-label="Cancelar pagamento"
+                (click)="abrirCancelar(p, $event)"
+              >
+                <span class="material-icons">close</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pager" *ngIf="pageData">
+        <button class="btn ghost" type="button" (click)="prev()" [disabled]="isFirst">
+          <span class="material-icons">chevron_left</span>
+          Anterior
+        </button>
+        <div class="pager-meta">
+          Página <b>{{ pageData.number + 1 }}</b>
+        </div>
+        <button class="btn ghost" type="button" (click)="next()" [disabled]="isLast">
+          Próxima
+          <span class="material-icons">chevron_right</span>
+        </button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<ng-container *ngIf="modalDetalhesAberto">
+  <div class="modal-backdrop" (click)="fecharDetalhes()">
+    <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="modal-title">Detalhes do pagamento</div>
+        <button class="icon-btn" type="button" (click)="fecharDetalhes()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body" *ngIf="pagamentoSelecionado as p">
+        <div class="ez-modal-grid">
+          <div class="field">
+            <div class="k">Pagamento</div>
+            <div class="v mono">{{ pagamentoCodigo(p) }}</div>
+          </div>
+
+          <div class="field">
+            <div class="k">Ticket</div>
+            <div class="v mono">{{ getTicket(p) }}</div>
+          </div>
+
+          <div class="field">
+            <div class="k">Status</div>
+            <div class="v">
+              <span class="badge" [attr.data-status]="p.status">{{ statusLabel(p.status) }}</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="k">Método</div>
+            <div class="v">{{ metodoLabel(p.metodo) }}</div>
+          </div>
+
+          <div class="field">
+            <div class="k">Valor</div>
+            <div class="v mono">{{ formatMoney(p.valor) }}</div>
+          </div>
+
+          <div class="field">
+            <div class="k">Data</div>
+            <div class="v">{{ formatDate(p.dataPagamento) }}</div>
+          </div>
+
+          <div class="field" *ngIf="p.codigoReferencia">
+            <div class="k">Código referência</div>
+            <div class="v mono">{{ p.codigoReferencia }}</div>
+          </div>
+
+          <div class="field" *ngIf="p.observacao">
+            <div class="k">Observação</div>
+            <div class="v">{{ p.observacao }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn ghost" type="button" (click)="fecharDetalhes()">Fechar</button>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="modalPagarAberto">
+  <div class="modal-backdrop" (click)="fecharPagar()">
+    <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="modal-title">Pagar ticket</div>
+        <button class="icon-btn" type="button" (click)="fecharPagar()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="ez-form">
+          <label class="ez-lbl">Ticket</label>
+          <div class="ez-readonly"><span class="ez-tag mono">{{ ticketCodigoFromId(pagarTicketId) }}</span></div>
+
+          <label class="ez-lbl">Forma de pagamento</label>
+          <select class="ez-ctrl" [(ngModel)]="pagarMetodo">
+            <option value="PIX">Pix</option>
+            <option value="CREDITO">Crédito</option>
+            <option value="DEBITO">Débito</option>
+            <option value="DINHEIRO">Dinheiro</option>
+            <option value="BOLETO">Boleto</option>
+            <option value="TRANSFERENCIA">Transferência</option>
+          </select>
+
+          <label class="ez-lbl">Código referência (opcional)</label>
+          <input class="ez-ctrl" type="text" [(ngModel)]="pagarCodigoReferencia" placeholder="Ex: TXN-123" />
+
+          <label class="ez-lbl">Observação (opcional)</label>
+          <input class="ez-ctrl" type="text" [(ngModel)]="pagarObservacao" placeholder="Ex: pago via app" />
+
+          <div class="err" *ngIf="erroPagar">{{ erroPagar }}</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn ghost" type="button" (click)="fecharPagar()" [disabled]="salvandoPagamento">Cancelar</button>
+        <button class="btn" type="button" (click)="confirmarPagamento()" [disabled]="salvandoPagamento">
+          <span class="material-icons" *ngIf="!salvandoPagamento">check</span>
+          <span class="material-icons spin" *ngIf="salvandoPagamento">progress_activity</span>
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="modalCancelarAberto">
+  <div class="modal-backdrop" (click)="fecharCancelar()">
+    <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="modal-title">Cancelar pagamento</div>
+        <button class="icon-btn" type="button" (click)="fecharCancelar()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body" *ngIf="pagamentoCancelar as p">
+        <div class="md">
+          Tem certeza que deseja cancelar o pagamento <b class="mono">{{ pagamentoCodigo(p) }}</b>?
+        </div>
+
+        <div class="ez-form" style="margin-top: 10px;">
+          <label class="ez-lbl">Motivo</label>
+          <input class="ez-ctrl" type="text" [(ngModel)]="motivoCancelamento" placeholder="Ex: paguei errado" />
+          <div class="err" *ngIf="erroCancelar">{{ erroCancelar }}</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn ghost" type="button" (click)="fecharCancelar()" [disabled]="cancelando">Voltar</button>
+        <button class="btn danger" type="button" (click)="confirmarCancelar()" [disabled]="cancelando">
+          <span class="material-icons" *ngIf="!cancelando">close</span>
+          <span class="material-icons spin" *ngIf="cancelando">progress_activity</span>
+          Cancelar pagamento
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="modalErroAberto">
+  <div class="modal-backdrop" (click)="fecharModalErro()">
+    <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="modal-title">Ocorreu um erro</div>
+        <button class="icon-btn" type="button" (click)="fecharModalErro()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="err">{{ modalErroMsg }}</div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn" type="button" (click)="carregarTudo(); fecharModalErro()">Tentar novamente</button>
+        <button class="btn ghost" type="button" (click)="fecharModalErro()">Fechar</button>
+      </div>
+    </div>
+  </div>
+</ng-container>

@@ -1,0 +1,135 @@
+<div class="page">
+  <div class="shell">
+    <div class="ez-head">
+      <div class="ez-title">
+        <div class="ez-h1">Listagem de Veículos</div>
+        <div class="ez-sub">Gerencie veículos cadastrados, status e vínculo com o dono.</div>
+      </div>
+    </div>
+    <section class="card">
+      <div class="ez-toolbar">
+        <div class="ez-search">
+          <span class="material-icons">search</span>
+          <input
+            type="text"
+            placeholder="Buscar por placa, tipo ou ID do dono…"
+            [(ngModel)]="busca"
+            (input)="aplicarBusca()"
+            name="busca"/>
+          <button
+            class="icon-btn"
+            type="button"
+            title="Limpar"
+            (click)="busca=''; aplicarBusca()"
+            [disabled]="!busca"
+          >
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+      </div>
+      <div class="pills" title="Filtrar por status">
+        <button class="pill" [class.active]="filtroStatus==='TODOS'" (click)="setFiltro('TODOS')">Todos</button>
+        <button class="pill ok" [class.active]="filtroStatus==='ATIVOS'" (click)="setFiltro('ATIVOS')">Ativos</button>
+        <button class="pill bad" [class.active]="filtroStatus==='INATIVOS'" (click)="setFiltro('INATIVOS')">Inativos</button>
+      </div>
+      <div class="ez-content">
+        <div *ngIf="!carregando && erro" class="ez-state ez-error">
+          <span class="material-icons">error</span>
+          <div class="txt">{{ erro }}</div>
+          <button class="btn" type="button" (click)="carregar()">Tentar novamente</button>
+        </div>
+        <div *ngIf="carregando" class="ez-skeleton">
+          <div class="sk"></div>
+          <div class="sk"></div>
+          <div class="sk"></div>
+        </div>
+        <div *ngIf="!carregando && !erro && veiculos.length === 0" class="ez-state ez-empty">
+          <span class="material-icons">directions_car</span>
+          <div class="txt">Nenhum veículo encontrado.</div>
+        </div>
+        <div *ngIf="!carregando && !erro && veiculos.length > 0" class="ez-table">
+          <div class="ez-thead">
+            <div>Placa</div>
+            <div>Tipo</div>
+            <div>Status</div>
+            <div>ID do dono</div>
+            <div class="th-actions">Ações</div>
+          </div>
+          <div class="ez-trow" *ngFor="let v of veiculos; trackBy: trackById">
+            <div class="cell">
+              <div class="placaText">{{ placaOf(v) }}</div>
+              <div class="meta">ID: {{ getId(v) }}</div>
+            </div>
+            <div class="cell">
+              <span class="pill tipo" [ngClass]="tipoClassOf(v)">
+                {{ tipoLabelOf(v) }}
+              </span>
+            </div>
+            <div class="cell">
+              <span class="pill status" [ngClass]="statusPillClass(v)">
+                {{ statusLabel(v) }}
+              </span>
+            </div>
+            <div class="cell mono">{{ donoId(v) }}</div>
+            <div class="cell actions">
+              <button
+                class="ez-icon bad trash"
+                type="button"
+                title="Excluir"
+                (click)="abrirConfirmarExcluir(v, $event)"
+                [disabled]="carregando || isInativo(v)"
+              >
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pager" *ngIf="pageData">
+        <button class="btn ghost" type="button" (click)="prev()" [disabled]="isFirst">
+          <span class="material-icons">chevron_left</span>
+          Anterior
+        </button>
+        <div class="pager-meta">
+          Página <b>{{ (pageData.number ?? 0) + 1 }}</b>
+          <span class="sep">•</span>
+          <b>{{ pageData.totalPages }}</b> Páginas
+          <span class="sep">•</span>
+          <b>{{ pageData.totalElements }}</b> Registros
+        </div>
+        <button class="btn ghost" type="button" (click)="next()" [disabled]="isLast">
+          Próxima
+          <span class="material-icons">chevron_right</span>
+        </button>
+      </div>
+    </section>
+  </div>
+  <ng-container *ngIf="confirmarExcluirAberto">
+    <div class="modal-backdrop" (click)="fecharConfirmarExcluir()">
+      <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <div class="modal-title">Excluir veículo</div>
+          <button class="icon-btn" type="button" (click)="fecharConfirmarExcluir()" aria-label="Fechar">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="md">
+            Tem certeza que deseja excluir o veículo <b>{{ placaExcluir }}</b>?
+          </div>
+          <div class="hint">Essa ação não poderá ser desfeita.</div>
+          <div class="err" *ngIf="erroExcluir">{{ erroExcluir }}</div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn ghost" type="button" (click)="fecharConfirmarExcluir()" [disabled]="carregando">
+            Cancelar
+          </button>
+          <button class="btn danger" type="button" (click)="confirmarExcluir()" [disabled]="carregando">
+            <span class="material-icons">delete</span>
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

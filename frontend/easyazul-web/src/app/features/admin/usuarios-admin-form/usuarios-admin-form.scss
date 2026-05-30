@@ -1,0 +1,237 @@
+.page {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(1200px 700px at 20% 10%, rgba(86, 50, 240, 0.25), transparent 60%),
+  radial-gradient(1000px 600px at 80% 30%, rgba(45, 160, 255, 0.20), transparent 60%),
+  #0a0c1c;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.layout {
+  width: min(1080px, 100%);
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 28px;
+  align-items: center;
+}
+
+@media (max-width: 980px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .side {
+    display: none;
+  }
+}
+
+.side {
+  padding: 18px;
+}
+
+.brand-title {
+  font-size: 46px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.brand-sub {
+  margin-top: -6px;
+  font-size: 34px;
+  font-weight: 900;
+  color: rgba(45, 160, 255, 0.92);
+}
+
+.arrows {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.arrow {
+  width: 50px;
+  height: 50px;
+  border: 2px solid rgba(45, 160, 255, 0.85);
+  border-left: none;
+  border-top: none;
+  transform: rotate(-45deg);
+  border-radius: 8px;
+  opacity: 0.9;
+}
+
+.hint {
+  margin-top: 16px;
+  max-width: 360px;
+  opacity: 0.78;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.card {
+  border-radius: 22px;
+  padding: 18px;
+  background: rgba(10, 12, 28, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45), 0 4px 10px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(12px);
+}
+
+.card-head {
+  position: relative;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.sub {
+  margin-top: 6px;
+  opacity: 0.75;
+  font-size: 13px;
+}
+
+.back {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.alert {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(231, 76, 60, 0.18);
+  border: 1px solid rgba(231, 76, 60, 0.25);
+}
+
+.radio-group {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.radio-title {
+  font-size: 13px;
+  font-weight: 900;
+  opacity: 0.85;
+  margin-bottom: 10px;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.radio input {
+  display: none;
+}
+
+.dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dot::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(86, 50, 240, 0.95);
+  transform: scale(0);
+  transition: transform 0.12s ease;
+}
+
+.radio input:checked + .dot::after {
+  transform: scale(1);
+}
+
+.label {
+  font-weight: 800;
+  opacity: 0.9;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+label {
+  font-size: 13px;
+  opacity: 0.85;
+  font-weight: 800;
+}
+
+input {
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  outline: none;
+}
+
+.btn {
+  margin-top: 14px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(86, 50, 240, 0.85);
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.85;
+}
+
+.toast{
+  position: fixed;
+  top: 84px;
+  right: 18px;
+  z-index: 9999;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(46,204,113,.35);
+  background: rgba(46,204,113,.14);
+  color: rgba(255,255,255,.92);
+  font-weight: 900;
+  box-shadow: 0 18px 50px rgba(0,0,0,.45);
+  backdrop-filter: blur(10px);
+  max-width: min(360px, calc(100vw - 40px));
+}

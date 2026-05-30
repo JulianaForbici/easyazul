@@ -1,0 +1,39 @@
+<header class="hdr">
+  <header class="topbar">
+    <div class="topbar-shell">
+      <a class="brand" routerLink="/home" aria-label="Ir para a Home">
+        <img class="brand-logo" [src]="logoBlue" alt="EasyAzul" />
+        <div class="brand-text">
+          <div class="brand-name">EasyAzul</div>
+          <div class="brand-city">Blumenau</div>
+        </div>
+      </a>
+      <nav class="nav">
+        <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+        <a routerLink="/mapa" routerLinkActive="active">Mapa</a>
+        <ng-container *ngIf="auth.isUser()">
+          <a routerLink="/veiculos" routerLinkActive="active">Meus Veículos</a>
+          <a routerLink="/tickets" routerLinkActive="active">Meus Tickets</a>
+          <a routerLink="/pagamentos" routerLinkActive="active">Meus Pagamentos</a>
+          <a routerLink="/perfil" routerLinkActive="active">Perfil</a>
+        </ng-container>
+        <ng-container *ngIf="auth.isFiscalOuAdmin()">
+          <a routerLink="/admin/usuarios" routerLinkActive="active">Usuários</a>
+          <a routerLink="/admin/tickets" routerLinkActive="active">Tickets</a>
+          <a routerLink="/admin/pagamentos" routerLinkActive="active">Pagamentos</a>
+          <a routerLink="/admin/veiculos" routerLinkActive="active">Veículos</a>
+          <a routerLink="/admin/zonas" routerLinkActive="active">Zonas</a>
+        </ng-container>
+      </nav>
+      <div class="account">
+        <ng-container *ngIf="auth.isAuthenticated(); else guest">
+          <a class="avatar" routerLink="/perfil" aria-label="Abrir perfil" title="Perfil">👤</a>
+          <button class="acc-btn" type="button" (click)="auth.logout()">Sair</button>
+        </ng-container>
+        <ng-template #guest>
+          <a class="acc-btn" routerLink="/login">Entrar</a>
+        </ng-template>
+      </div>
+    </div>
+  </header>
+</header>

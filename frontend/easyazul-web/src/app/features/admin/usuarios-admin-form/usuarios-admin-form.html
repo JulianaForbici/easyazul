@@ -1,0 +1,97 @@
+<div class="page">
+  <div class="layout">
+    <section class="side">
+      <div class="brand">
+        <div class="brand-title">Cadastro Usuários</div>
+      </div>
+      <div class="arrows" aria-hidden="true">
+        <span class="arrow"></span>
+        <span class="arrow"></span>
+        <span class="arrow"></span>
+        <span class="arrow"></span>
+      </div>
+      <div class="hint">
+        Crie usuários do sistema. Tela exclusiva para administradores.
+      </div>
+    </section>
+    <section class="card">
+      <div class="toast" *ngIf="toastMsg">{{ toastMsg }}</div>
+      <div class="card-head">
+        <div class="title">Criar usuário</div>
+        <button class="back" type="button" (click)="voltar()">Voltar</button>
+        <div class="sub">Somente Administradores</div>
+      </div>
+      <div class="alert" *ngIf="erroGeral">{{ erroGeral }}</div>
+      <div class="radio-group" (change)="onTipoChange()">
+        <div class="radio-title">Tipo</div>
+        <label class="radio" *ngFor="let t of tiposAdmin">
+          <input type="radio" name="tipo" [(ngModel)]="form.tipo" [value]="t.value" />
+          <span class="dot"></span>
+          <span class="label">{{ t.label }}</span>
+        </label>
+      </div>
+      <form #f="ngForm" (ngSubmit)="cadastrar(f)">
+        <div class="grid">
+          <div class="row">
+            <label>Nome</label>
+            <input name="nome" [(ngModel)]="form.nome" required />
+          </div>
+          <div class="row">
+            <label>E-mail</label>
+            <input name="email" [(ngModel)]="form.email" required type="email" />
+          </div>
+          <div class="row">
+            <label>Senha</label>
+            <input name="senha" [(ngModel)]="form.senha" required type="password" minlength="6" />
+          </div>
+          <div class="row">
+            <label>Telefone</label>
+            <input
+              name="telefone"
+              [(ngModel)]="form.telefone"
+              required
+              appMaskInput="telefone"
+              placeholder="(47) 99999-9999"
+            />
+          </div>
+          <div class="row" *ngIf="form.tipo !== 'EMPRESA'">
+            <label>CPF (opcional)</label>
+            <input
+              name="cpf"
+              [(ngModel)]="form.cpf"
+              appMaskInput="cpf"
+              placeholder="000.000.000-00"
+            />
+          </div>
+          <div class="row" *ngIf="form.tipo === 'EMPRESA'">
+            <label>CNPJ</label>
+            <input
+              name="cnpj"
+              [(ngModel)]="form.cnpj"
+              required
+              appMaskInput="cnpj"
+              placeholder="00.000.000/0000-00"/>
+          </div>
+          <div class="row" *ngIf="form.tipo === 'EMPRESA'">
+            <label>Razão social</label>
+            <input name="razaoSocial" [(ngModel)]="form.razaoSocial" required />
+          </div>
+          <div class="row">
+            <label>Data nascimento (opcional)</label>
+            <input
+              name="dataNascimento"
+              [(ngModel)]="form.dataNascimento"
+              type="date"
+              [min]="minNascimento"
+              [max]="hoje"
+            />
+          </div>
+        </div>
+        <button class="btn" [disabled]="carregando || f.invalid">
+          <span *ngIf="!carregando">Criar usuário</span>
+          <span *ngIf="carregando">Criando...</span>
+        </button>
+      </form>
+    </section>
+  </div>
+</div>

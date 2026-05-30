@@ -1,0 +1,70 @@
+<div class="page">
+  <div class="shell">
+    <div class="top">
+      <div class="title">
+        <div class="t1">Editar Usuário</div>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" type="button" (click)="voltar()">Voltar</button>
+        <button class="btn" type="button" (click)="salvar()" [disabled]="salvando || carregando || !podeEditar">{{ salvando ? 'Salvando…' : 'Salvar' }}
+        </button>
+      </div>
+    </div>
+    <div class="alert" *ngIf="erro">{{ erro }}</div>
+    <div class="ok" *ngIf="okMsg">{{ okMsg }}</div>
+    <div class="card" *ngIf="usuario && !carregando">
+      <div class="readonly">
+        <div><span>ID</span><b>{{ usuario.id }}</b></div>
+        <div><span>Tipo</span><b>{{ usuario.tipo }}</b></div>
+        <div><span>Status</span><b>{{ usuario.status }}</b></div>
+        <div><span>Nascimento</span><b>{{ formatarDataBR(usuario.dataNascimento) }}</b></div>
+        <div><span>Razão Social</span><b>{{ usuario.razaoSocial || '-' }}</b></div>
+      </div>
+      <div class="form">
+        <label>
+          <span>Nome</span>
+          <input [(ngModel)]="nome" placeholder="Nome" />
+        </label>
+        <label>
+          <span>E-mail</span>
+          <input [(ngModel)]="email" placeholder="email@exemplo.com" />
+        </label>
+        <label>
+          <span>Telefone</span>
+          <input [(ngModel)]="telefone" appMaskInput="telefone" placeholder="(47) 99999-9999" />
+        </label>
+        <div class="row">
+          <label>
+            <span>CPF (opcional)</span>
+            <input [(ngModel)]="cpf" appMaskInput="cpf" placeholder="000.000.000-00" />
+          </label>
+          <label>
+            <span>CNPJ (opcional)</span>
+            <input [(ngModel)]="cnpj" appMaskInput="cnpj" placeholder="00.000.000/0000-00" />
+          </label>
+        </div>
+        <div class="sep"></div>
+        <div class="row">
+          <label>
+            <span>Nova senha (opcional)</span>
+            <input type="password" [(ngModel)]="senha" placeholder="Deixe em branco para não alterar" />
+          </label>
+          <label>
+            <span>Confirmar senha</span>
+            <input type="password" [(ngModel)]="confirmarSenha" placeholder="Confirme a nova senha" />
+          </label>
+        </div>
+        <p class="hint">
+          Se não quiser trocar a senha, deixe os campos de senha vazios!
+        </p>
+      </div>
+    </div>
+    <div class="loading" *ngIf="carregando">Carregando…</div>
+  </div>
+  <footer class="brand-footer">
+    <div class="brand-footer-shell">
+      <div class="brand-footer-title">EasyAzul</div>
+      <div class="brand-footer-sub">Projeto integrador • Juliana Forbici</div>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,110 @@
+<div class="page">
+  <div class="shell">
+    <header class="head">
+      <div class="head-left">
+        <div class="t1">Nova zona</div>
+        <div class="sub">
+          Cadastre uma zona de estacionamento rotativo.
+        </div>
+      </div>
+      <div class="head-right">
+        <button class="btn ghost" type="button" (click)="voltar()" [disabled]="carregando">
+          <span class="material-icons">arrow_back</span>
+          Voltar
+        </button>
+        <button class="btn" type="button" (click)="salvar()" [disabled]="carregando">
+          <span class="material-icons">save</span>
+          Salvar
+        </button>
+      </div>
+    </header>
+    <div class="msg error" *ngIf="erro">{{ erro }}</div>
+    <div class="msg ok" *ngIf="sucesso">{{ sucesso }}</div>
+    <div class="msg" *ngIf="carregando">Salvando…</div>
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">Dados da zona</div>
+        <div class="segmented" title="Localização">
+          <button type="button" class="seg"
+                  [class.active]="modoLocalizacao==='ENDERECO'"
+                  (click)="setModo('ENDERECO')">
+            Endereço
+          </button>
+          <button type="button" class="seg"
+                  [class.active]="modoLocalizacao==='LATLON'"
+                  (click)="setModo('LATLON')">
+            Lat/Lon
+          </button>
+        </div>
+      </div>
+      <div class="form">
+        <div class="grid">
+          <label class="field">
+            <span>Nome</span>
+            <input [(ngModel)]="nome" name="nome" placeholder="Ex: Vila Germânica" />
+          </label>
+          <label class="field">
+            <span>Tarifa (R$)</span>
+            <input [(ngModel)]="tarifa" name="tarifa" placeholder="Ex: 2.50" />
+          </label>
+          <label class="field">
+            <span>Tempo máximo (min)</span>
+            <input [(ngModel)]="tempoMaximo" name="tempoMaximo" placeholder="Ex: 120" />
+          </label>
+          <label class="field">
+            <span>Capacidade de vagas</span>
+            <input [(ngModel)]="capacidadeVagas" name="capacidadeVagas" placeholder="Ex: 25" />
+          </label>
+          <label class="field">
+            <span>Hora início</span>
+            <input type="time" [(ngModel)]="horaInicio" name="horaInicio" />
+          </label>
+          <label class="field">
+            <span>Hora fim</span>
+            <input type="time" [(ngModel)]="horaFim" name="horaFim" />
+          </label>
+        </div>
+        <label class="field full">
+          <span>Descrição (opcional)</span>
+          <textarea [(ngModel)]="descricao" name="descricao" rows="4"
+                    placeholder="Detalhes da zona, regras, observações…"></textarea>
+        </label>
+        <div class="loc" *ngIf="modoLocalizacao==='ENDERECO'">
+          <label class="field full">
+            <span>Endereço</span>
+            <input [(ngModel)]="endereco" name="endereco"
+                   placeholder="Ex: Rua Alberto Stein, 199 - Blumenau" />
+          </label>
+          <div class="hint">
+            Dica: se latitude/longitude não for informada, o backend busca as coordenadas via OpenStreetMap (Nominatim).
+          </div>
+        </div>
+        <div class="loc" *ngIf="modoLocalizacao==='LATLON'">
+          <div class="grid">
+            <label class="field">
+              <span>Latitude</span>
+              <input [(ngModel)]="latitude" name="latitude" placeholder="-26.9169" />
+            </label>
+
+            <label class="field">
+              <span>Longitude</span>
+              <input [(ngModel)]="longitude" name="longitude" placeholder="-49.0707" />
+            </label>
+          </div>
+          <div class="hint">
+            Dica: use ponto para decimais. Ex: -26.9169
+          </div>
+        </div>
+        <footer class="form-actions">
+          <button class="btn ghost" type="button" (click)="voltar()" [disabled]="carregando">
+            Cancelar
+          </button>
+          <button class="btn" type="button" (click)="salvar()" [disabled]="carregando">
+            <span class="material-icons">save</span>
+            Salvar zona
+          </button>
+        </footer>
+      </div>
+    </section>
+  </div>
+</div>

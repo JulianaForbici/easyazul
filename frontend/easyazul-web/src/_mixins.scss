@@ -1,0 +1,43 @@
+@mixin btn-base {
+  border: 0;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  font-weight: 900;
+  letter-spacing: .2px;
+
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.12);
+
+  transition: transform .12s ease, filter .12s ease;
+  min-height: 40px;
+
+  &:hover { transform: translateY(-1px); filter: brightness(1.08); }
+  &:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+}
+
+@mixin primary-button {
+  @include btn-base;
+  background: linear-gradient(90deg, rgba(123,79,245,1), rgba(45,160,255,1));
+  border: 0;
+  box-shadow: 0 12px 30px rgba(123,79,245,.20);
+}
+
+@mixin danger-button {
+  @include btn-base;
+  background: rgba(231, 76, 60, .18);
+  border: 1px solid rgba(231, 76, 60, .35);
+
+  &:hover { filter: brightness(1.12); }
+}
+
+@mixin ghost-button {
+  @include btn-base;
+  background: rgba(255,255,255,.06);
+}

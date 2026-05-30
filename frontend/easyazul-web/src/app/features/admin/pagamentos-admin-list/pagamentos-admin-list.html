@@ -1,0 +1,214 @@
+<div class="page">
+  <div class="shell">
+    <div class="ez-head">
+      <div class="ez-title">
+        <div class="ez-h1">Listagem de Pagamentos</div>
+        <div class="ez-sub">Visualize, filtre e valide pagamentos vinculados a tickets.</div>
+      </div>
+      <div class="ez-chips">
+        <div class="ez-chip warn">
+          <div class="k">Pendentes</div>
+          <div class="v">{{ qtdPendentes }}</div>
+        </div>
+
+        <div class="ez-chip">
+          <div class="k">Aprovados</div>
+          <div class="v">{{ qtdAprovados }}</div>
+        </div>
+
+        <div class="ez-chip muted">
+          <div class="k">Recusados</div>
+          <div class="v">{{ qtdRecusados }}</div>
+        </div>
+
+        <div class="ez-chip bad">
+          <div class="k">Cancelados</div>
+          <div class="v">{{ qtdCancelados }}</div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="toast"
+      *ngIf="toastMsg"
+      [attr.data-variant]="toastTipo === 'ok' ? 'ok' : 'err'"
+      role="status"
+      aria-live="polite"
+    >
+      <span class="material-icons">{{ toastTipo === 'ok' ? 'check_circle' : 'error' }}</span>
+      <div class="toast-text">{{ toastMsg }}</div>
+      <button class="toast-x" type="button" (click)="clearToast()" aria-label="Fechar">×</button>
+    </div>
+
+    <section class="card">
+      <div class="ez-toolbar">
+        <div class="ez-search">
+          <span class="material-icons">search</span>
+          <input
+            type="text"
+            placeholder="Buscar por id, ticket, status, método, valor, referência, observação…"
+            [(ngModel)]="busca"
+            (input)="aplicarBusca()"
+          />
+          <button
+            class="icon-btn"
+            type="button"
+            title="Limpar"
+            (click)="busca=''; aplicarBusca()"
+            [disabled]="!busca"
+          >
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pills">
+        <button class="pill" [class.active]="filtroStatus==='TODOS'" (click)="setFiltro('TODOS')">Todos</button>
+        <button class="pill warn" [class.active]="filtroStatus==='PENDENTE'" (click)="setFiltro('PENDENTE')">Pendentes</button>
+        <button class="pill ok" [class.active]="filtroStatus==='APROVADO'" (click)="setFiltro('APROVADO')">Aprovados</button>
+        <button class="pill muted" [class.active]="filtroStatus==='RECUSADO'" (click)="setFiltro('RECUSADO')">Recusados</button>
+        <button class="pill bad" [class.active]="filtroStatus==='CANCELADO'" (click)="setFiltro('CANCELADO')">Cancelados</button>
+      </div>
+
+      <div class="ez-content">
+        <!-- Skeleton -->
+        <div *ngIf="carregando" class="ez-skeleton">
+          <div class="sk"></div>
+          <div class="sk"></div>
+          <div class="sk"></div>
+        </div>
+        <div *ngIf="!carregando && erro" class="ez-state ez-error">
+          <span class="material-icons">error</span>
+          <div class="txt">{{ erro }}</div>
+          <button class="btn" type="button" (click)="carregar()">Tentar novamente</button>
+        </div>
+        <div *ngIf="!carregando && !erro && pagamentosFiltrados.length === 0" class="ez-state ez-empty">
+          <span class="material-icons">payments</span>
+          <div class="txt">Nenhum pagamento encontrado.</div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn" type="button" (click)="carregar()">Recarregar</button>
+            <button class="btn ghost" type="button" (click)="busca=''; aplicarBusca()">Limpar busca</button>
+          </div>
+        </div>
+
+        <div *ngIf="!carregando && !erro && pagamentosFiltrados.length > 0" class="ez-table">
+          <div class="ez-thead">
+            <div>Pagamento</div>
+            <div>Ticket</div>
+            <div>Método</div>
+            <div>Valor</div>
+            <div>Status</div>
+            <div>Data</div>
+            <div class="th-actions">Ações</div>
+          </div>
+          <div
+            class="ez-trow"
+            *ngFor="let p of pagamentosFiltrados; trackBy: trackById"
+            (click)="detalhar(p)"
+            role="button"
+            tabindex="0"
+          >
+            <div class="cell mono">#{{ p.idPagamento }}</div>
+            <div class="cell mono">#{{ ticketOf(p) }}</div>
+            <div class="cell">{{ metodoLabel(p.metodo) }}</div>
+            <div class="cell mono">{{ money(p.valor) }}</div>
+            <div class="cell">
+              <span class="badge" [attr.data-status]="p?.status">
+                {{ statusLabel(p?.status) }}
+              </span>
+            </div>
+            <div class="cell">{{ dataLabel(p.dataPagamento) }}</div>
+            <div class="cell actions" (click)="$event.stopPropagation()">
+              <button class="ez-icon" type="button" title="Detalhes" (click)="detalhar(p)">
+                <span class="material-icons">info</span>
+              </button>
+
+              <button
+                *ngIf="podeConfirmar(p)"
+                class="ez-icon ok"
+                type="button"
+                title="Confirmar"
+                (click)="confirmar(p)"
+              >
+                <span class="material-icons">check</span>
+              </button>
+
+              <button
+                *ngIf="podeCancelar(p)"
+                class="ez-icon bad"
+                type="button"
+                title="Cancelar"
+                (click)="abrirCancelar(p, $event)"
+              >
+                <span class="material-icons">close</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pager" *ngIf="pageData">
+        <button class="btn ghost" type="button" (click)="prev()" [disabled]="isFirst">
+          <span class="material-icons">chevron_left</span>
+          Anterior
+        </button>
+        <div class="pager-meta">Página <b>{{ pageData.number + 1 }}</b></div>
+        <button class="btn ghost" type="button" (click)="next()" [disabled]="isLast">
+          Próxima
+          <span class="material-icons">chevron_right</span>
+        </button>
+      </div>
+    </section>
+  </div>
+</div>
+<ng-container *ngIf="modalAberto">
+  <div class="modal-backdrop" (click)="fecharModal()">
+    <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="modal-title">{{ modalTitulo }}</div>
+        <button class="icon-btn" type="button" (click)="fecharModal()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="modal-body" [innerHTML]="modalHtml"></div>
+      <div class="modal-actions">
+        <button class="btn ghost" type="button" (click)="fecharModal()">Fechar</button>
+        <button class="btn" type="button" *ngIf="acaoConfirmar" (click)="acaoConfirmar()">
+          {{ textoConfirmar }}
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>
+<ng-container *ngIf="modalCancelarAberto">
+  <div class="modal-backdrop" (click)="fecharCancelar()">
+    <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="modal-title">Cancelar pagamento</div>
+        <button class="icon-btn" type="button" (click)="fecharCancelar()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="modal-body" *ngIf="pagamentoCancelar as p">
+        <div class="md">Informe o motivo para cancelar o pagamento <b class="mono">#{{ p.idPagamento }}</b>.</div>
+        <div class="ez-form" style="margin-top: 10px;">
+          <label class="ez-lbl">Motivo</label>
+          <input
+            class="ez-ctrl"
+            type="text"
+            placeholder="Ex: divergência no ticket, pagamento suspeito..."
+            [(ngModel)]="motivoCancelamento"
+            [disabled]="cancelando"
+          />
+          <div class="err" *ngIf="erroCancelar">{{ erroCancelar }}</div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn ghost" type="button" (click)="fecharCancelar()" [disabled]="cancelando">Voltar</button>
+        <button class="btn danger" type="button" (click)="confirmarCancelar()" [disabled]="cancelando">
+          <span class="material-icons" *ngIf="!cancelando">close</span>
+          <span class="material-icons spin" *ngIf="cancelando">progress_activity</span>
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>
