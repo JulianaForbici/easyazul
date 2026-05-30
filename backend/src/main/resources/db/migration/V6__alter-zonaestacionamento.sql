@@ -1,0 +1,1 @@
+alter table zona_estacionamento alter column descricao drop not null;
