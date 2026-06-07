@@ -4,6 +4,8 @@ EasyAzul é uma aplicação web desenvolvida para facilitar o gerenciamento de v
 
 O projeto conta com backend em Java com Spring Boot e frontend em Angular, oferecendo autenticação segura com JWT, controle de acesso por perfil e integração com mapa para visualização das zonas de estacionamento.
 
+https://github.com/user-attachments/assets/b2a7f083-7915-46f6-88bd-683b21e2a59e
+
 ## 🚀 Principais funcionalidades
 
 * Cadastro e autenticação de usuários
@@ -161,6 +163,7 @@ Projeto em desenvolvimento.
 ## 👩‍💻 Autora
 
 Juliana Cristina Forbici
+
 
 ## 📄 Licença
 
