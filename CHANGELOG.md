@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.1 - 2026-09-01
+
+- Merge remote-tracking branch 'origin/develop' into develop
+- fix: corrigido teste
+
+
 ## v1.0.3 - 2026-09-01
 
 - Merge remote-tracking branch 'origin/develop' into develop
