@@ -1,0 +1,181 @@
+name: Auto Tag Develop/Main
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: "Branch alvo"
+        required: true
+        type: choice
+        default: develop
+        options:
+          - develop
+          - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: autoversion-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  auto-tag:
+    name: Calcular versão e atualizar changelog
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Definir branch
+        id: branch
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          DISPATCH_BRANCH: ${{ github.event.inputs.target_branch || '' }}
+        run: |
+          set -euo pipefail
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            TARGET_BRANCH="$DISPATCH_BRANCH"
+          else
+            TARGET_BRANCH="$REF_NAME"
+          fi
+
+          if [ "$TARGET_BRANCH" != "develop" ] && [ "$TARGET_BRANCH" != "main" ]; then
+            echo "Branch não suportada: $TARGET_BRANCH"
+            exit 1
+          fi
+
+          echo "target_branch=$TARGET_BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Calcular próxima versão
+        id: version
+        env:
+          TARGET_BRANCH: ${{ steps.branch.outputs.target_branch }}
+        run: |
+          set -euo pipefail
+
+          git fetch --tags --force
+
+          LAST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' \
+            --sort=-version:refname | head -n 1 || true)
+
+          echo "Última tag: ${LAST_TAG:-nenhuma}"
+
+          if [ -z "$LAST_TAG" ]; then
+            MAJOR=1
+            MINOR=0
+            PATCH=0
+          else
+            VERSION="${LAST_TAG#v}"
+
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+
+            if [ "$TARGET_BRANCH" = "develop" ]; then
+              PATCH=$((PATCH + 1))
+            else
+              MINOR=$((MINOR + 1))
+              PATCH=0
+            fi
+          fi
+
+          NEXT_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+
+          echo "last_tag=$LAST_TAG" >> "$GITHUB_OUTPUT"
+          echo "next_tag=$NEXT_TAG" >> "$GITHUB_OUTPUT"
+
+          echo "Próxima versão: $NEXT_TAG"
+
+      - name: Atualizar changelog
+        id: changelog
+        env:
+          LAST_TAG: ${{ steps.version.outputs.last_tag }}
+          NEXT_TAG: ${{ steps.version.outputs.next_tag }}
+        run: |
+          set -euo pipefail
+
+          CHANGELOG_FILE="CHANGELOG.md"
+
+          if [ -n "$LAST_TAG" ]; then
+            COMMITS=$(git log "${LAST_TAG}..HEAD" \
+              --pretty=format:"- %s")
+          else
+            COMMITS=$(git log \
+              --pretty=format:"- %s")
+          fi
+
+          if [ -z "$COMMITS" ]; then
+            echo "Nenhum commit novo encontrado."
+            echo "has_updates=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ ! -f "$CHANGELOG_FILE" ]; then
+            printf "# Changelog\n\n" > "$CHANGELOG_FILE"
+          fi
+
+          EXISTING_CONTENT=$(sed '1d' "$CHANGELOG_FILE" || true)
+
+          {
+            printf "# Changelog\n\n"
+            printf "## %s - %s\n\n" \
+              "$NEXT_TAG" \
+              "$(date -u +'%Y-%m-%d')"
+
+            printf "%s\n\n" "$COMMITS"
+
+            if [ -n "$EXISTING_CONTENT" ]; then
+              printf "%s\n" "$EXISTING_CONTENT"
+            fi
+          } > "$CHANGELOG_FILE"
+
+          echo "has_updates=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commitar changelog
+        if: steps.changelog.outputs.has_updates == 'true'
+        env:
+          NEXT_TAG: ${{ steps.version.outputs.next_tag }}
+          TARGET_BRANCH: ${{ steps.branch.outputs.target_branch }}
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add CHANGELOG.md
+
+          if git diff --cached --quiet; then
+            echo "Nenhuma alteração no changelog."
+            exit 0
+          fi
+
+          git commit -m "docs: update changelog for ${NEXT_TAG}"
+          git push origin HEAD:"$TARGET_BRANCH"
+
+      - name: Criar tag
+        if: steps.changelog.outputs.has_updates == 'true'
+        env:
+          NEXT_TAG: ${{ steps.version.outputs.next_tag }}
+        run: |
+          set -euo pipefail
+
+          if git rev-parse "$NEXT_TAG" >/dev/null 2>&1; then
+            echo "Tag $NEXT_TAG já existe."
+            exit 0
+          fi
+
+          git tag -a "$NEXT_TAG" \
+            -m "Release ${NEXT_TAG}"
+
+          git push origin "$NEXT_TAG"
