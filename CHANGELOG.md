@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.3 - 2026-09-01
+
+- Merge branch 'main' into develop
+- docs: update changelog for v1.2.0
+
+
 ## v1.2.2 - 2026-09-01
 
 - feito merge
