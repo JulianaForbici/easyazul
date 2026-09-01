@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.1.0 - 2026-09-01
+
+- Merge pull request #1 from JulianaForbici/develop
+
+
 ## v1.0.3 - 2026-09-01
 
 - Merge remote-tracking branch 'origin/develop' into develop
