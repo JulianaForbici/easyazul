@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.2.2 - 2026-09-01
+
+- feito merge
+- Merge branch 'develop'
+- docs: update changelog for v1.1.0
+- Merge pull request #1 from JulianaForbici/develop
+
+
 ## v1.2.1 - 2026-09-01
 
 - fix: corrigido teste
