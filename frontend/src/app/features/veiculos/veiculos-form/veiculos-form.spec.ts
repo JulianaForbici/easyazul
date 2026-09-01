@@ -1,43 +1,29 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
-import { Observable } from 'rxjs';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
-export type Veiculo = {
-  id?: number;
-  idVeiculo?: number;
-  placa: string;
-  tipoVeiculo: 'CARRO' | 'MOTO' | 'CAMINHAO' | 'ONIBUS' | 'OUTRO';
-  status?: string;
-  idDono?: number;
-};
+import { VeiculosFormComponent } from './veiculos-form';
 
-export type Page<T> = {
-  content: T[];
-  totalPages: number;
-  totalElements: number;
-  number?: number;
-  size?: number;
-};
+describe('VeiculosFormComponent', () => {
+  let component: VeiculosFormComponent;
+  let fixture: ComponentFixture<VeiculosFormComponent>;
 
-@Injectable({ providedIn: 'root' })
-export class VeiculoService {
-  private base = environment.apiUrl;
-  constructor(private http: HttpClient) {}
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
+        VeiculosFormComponent,
+        HttpClientTestingModule
+      ]
+    }).compileComponents();
 
-  listarMeus(page = 0, size = 10): Observable<Page<Veiculo>> {
-    return this.http.get<Page<Veiculo>>(`${this.base}/veiculos/meus?page=${page}&size=${size}`);
-  }
+    fixture = TestBed.createComponent(VeiculosFormComponent);
+    component = fixture.componentInstance;
 
-  criarMeu(payload: { placa: string; tipoVeiculo: string; idDono: number }): Observable<any> {
-    return this.http.post(`${this.base}/veiculos`, payload);
-  }
+    fixture.componentRef.setInput('aberto', false);
 
-  atualizarMeu(id: number, payload: { placa: string; tipoVeiculo: string }): Observable<any> {
-    return this.http.put(`${this.base}/veiculos/${id}`, payload);
-  }
+    fixture.detectChanges();
+  });
 
-  excluirMeu(id: number): Observable<any> {
-    return this.http.delete(`${this.base}/veiculos/${id}`);
-  }
-}
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});

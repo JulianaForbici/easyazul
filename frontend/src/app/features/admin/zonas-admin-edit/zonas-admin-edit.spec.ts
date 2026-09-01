@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { ZonasAdminEditComponent } from './zonas-admin-edit';
 
@@ -8,11 +9,15 @@ describe('ZonasAdminEditComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ZonasAdminEditComponent]
+      imports: [ZonasAdminEditComponent],
+      providers: [
+        provideRouter([])
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZonasAdminEditComponent);
     component = fixture.componentInstance;
+
     await fixture.whenStable();
   });
 
