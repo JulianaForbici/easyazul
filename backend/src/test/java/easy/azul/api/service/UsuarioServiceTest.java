@@ -34,10 +34,14 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UsuarioServiceTest {
 
-    @Mock UsuarioRepository usuarioRepository;
-    @Mock PasswordEncoder passwordEncoder;
+    @Mock
+    UsuarioRepository usuarioRepository;
 
-    @InjectMocks UsuarioService usuarioService;
+    @Mock
+    PasswordEncoder passwordEncoder;
+
+    @InjectMocks
+    UsuarioService usuarioService;
 
     @BeforeEach
     void beforeEach() {
@@ -54,7 +58,11 @@ class UsuarioServiceTest {
         SecurityContextHolder.setContext(ctx);
     }
 
-    private DadosCadastroUsuario motorista(String email, String telefone, String cpf) {
+    private DadosCadastroUsuario motorista(
+            String email,
+            String telefone,
+            String cpf
+    ) {
         return new DadosCadastroUsuario(
                 "Juliana",
                 email,
@@ -64,10 +72,16 @@ class UsuarioServiceTest {
                 telefone,
                 MOTORISTA,
                 LocalDate.of(2005, 10, 20),
-                null);
+                null
+        );
     }
 
-    private DadosCadastroUsuario empresa(String email, String telefone, String cpf, String cnpj) {
+    private DadosCadastroUsuario empresa(
+            String email,
+            String telefone,
+            String cpf,
+            String cnpj
+    ) {
         return new DadosCadastroUsuario(
                 "Empresa",
                 email,
@@ -77,10 +91,17 @@ class UsuarioServiceTest {
                 telefone,
                 EMPRESA,
                 null,
-                "RAZAO");
+                "RAZAO"
+        );
     }
 
-    private DadosCadastroUsuario admin(TipoUsuario tipo, String email, String telefone, String cpf, String cnpj) {
+    private DadosCadastroUsuario admin(
+            TipoUsuario tipo,
+            String email,
+            String telefone,
+            String cpf,
+            String cnpj
+    ) {
         return new DadosCadastroUsuario(
                 tipo == FISCAL ? "Fiscal" : "Admin",
                 email,
@@ -90,128 +111,317 @@ class UsuarioServiceTest {
                 telefone,
                 tipo,
                 LocalDate.of(2000, 1, 1),
-                null);
+                null
+        );
     }
 
     @ParameterizedTest
-    @EnumSource(value = TipoUsuario.class, names = {"ADMINISTRADOR", "FISCAL"})
+    @EnumSource(
+            value = TipoUsuario.class,
+            names = {"ADMINISTRADOR", "FISCAL"}
+    )
     @DisplayName("Não deve permitir cadastro público de administrador ou fiscal")
     void cadastroDeveBloquearAdminFiscal(TipoUsuario tipo) {
-        var dados = admin(tipo, "juliana@gmail.com", "47911111111", "123.456.789-01", null);
 
-        var ex = assertThrows(ValidacaoException.class, () -> usuarioService.cadastrar(dados));
-        assertEquals("Tipo de usuário não permitido para cadastro público!", ex.getMessage());
+        var dados = admin(
+                tipo,
+                "juliana@gmail.com",
+                "47911111111",
+                "123.456.789-01",
+                null
+        );
+
+        var ex = assertThrows(
+                ValidacaoException.class,
+                () -> usuarioService.cadastrar(dados)
+        );
+
+        assertEquals(
+                "Tipo de usuário não permitido para cadastro público!",
+                ex.getMessage()
+        );
     }
 
     @Test
     @DisplayName("Deve cadastrar motorista corretamente")
     void cadastroSalvaMotorista() {
-        var dados = motorista("motorista@gmail.com", "47999999999", "310.818.628-07");
 
-        when(usuarioRepository.existsByEmail(dados.email())).thenReturn(false);
-        when(usuarioRepository.existsByCpf("31081862807")).thenReturn(false);
-        when(passwordEncoder.encode(dados.senha())).thenReturn("hash");
-        when(usuarioRepository.save(any(Usuario.class))).thenAnswer(i -> i.getArgument(0));
+        var dados = motorista(
+                "motorista@gmail.com",
+                "47999999999",
+                "310.818.628-07"
+        );
+
+        when(usuarioRepository.existsByEmail(dados.email()))
+                .thenReturn(false);
+
+        when(usuarioRepository.existsByCpf("31081862807"))
+                .thenReturn(false);
+
+        when(passwordEncoder.encode(dados.senha()))
+                .thenReturn("hash");
+
+        when(usuarioRepository.save(any(Usuario.class)))
+                .thenAnswer(i -> i.getArgument(0));
 
         assertNotNull(usuarioService.cadastrar(dados));
-        verify(usuarioRepository).save(any(Usuario.class));
+
+        verify(usuarioRepository)
+                .save(any(Usuario.class));
     }
 
     @Test
     @DisplayName("Não deve permitir cadastro com e-mail duplicado")
     void cadastroBloqueiaEmailDup() {
-        var dados = motorista("duplicado@gmail.com", "47911111111", "310.818.628-07");
 
-        when(usuarioRepository.existsByEmail(dados.email())).thenReturn(true);
+        var dados = motorista(
+                "duplicado@gmail.com",
+                "47911111111",
+                "310.818.628-07"
+        );
 
-        var ex = assertThrows(ValidacaoException.class, () -> usuarioService.cadastrar(dados));
-        assertEquals("E-mail já cadastrado!", ex.getMessage());
+        when(usuarioRepository.existsByEmail(dados.email()))
+                .thenReturn(true);
+
+        var ex = assertThrows(
+                ValidacaoException.class,
+                () -> usuarioService.cadastrar(dados)
+        );
+
+        assertEquals(
+                "E-mail já cadastrado!",
+                ex.getMessage()
+        );
     }
 
     @Test
     @DisplayName("Não deve permitir cadastro com CPF duplicado")
     void cadastroBloqueiaCpfDup() {
-        var dados = motorista("cpf@gmail.com", "47922222222", "310.818.628-07");
 
-        when(usuarioRepository.existsByEmail(dados.email())).thenReturn(false);
-        when(usuarioRepository.existsByCpf("31081862807")).thenReturn(true);
+        var dados = motorista(
+                "cpf@gmail.com",
+                "47922222222",
+                "310.818.628-07"
+        );
 
-        var ex = assertThrows(ValidacaoException.class, () -> usuarioService.cadastrar(dados));
-        assertEquals("CPF já cadastrado!", ex.getMessage());
+        when(usuarioRepository.existsByEmail(dados.email()))
+                .thenReturn(false);
+
+        when(usuarioRepository.existsByCpf("31081862807"))
+                .thenReturn(true);
+
+        var ex = assertThrows(
+                ValidacaoException.class,
+                () -> usuarioService.cadastrar(dados)
+        );
+
+        assertEquals(
+                "CPF já cadastrado!",
+                ex.getMessage()
+        );
     }
 
     @Test
     @DisplayName("Não deve permitir cadastro de motorista sem CPF")
     void cadastroBloqueiaMotoristaSemCpf() {
-        var dados = motorista("semcpf@gmail.com", "47933333333", null);
 
-        when(usuarioRepository.existsByEmail(dados.email())).thenReturn(false);
+        var dados = motorista(
+                "semcpf@gmail.com",
+                "47933333333",
+                null
+        );
 
-        var ex = assertThrows(ValidacaoException.class, () -> usuarioService.cadastrar(dados));
-        assertEquals("CPF é obrigatório para motorista!", ex.getMessage());
+        when(usuarioRepository.existsByEmail(dados.email()))
+                .thenReturn(false);
+
+        var ex = assertThrows(
+                ValidacaoException.class,
+                () -> usuarioService.cadastrar(dados)
+        );
+
+        assertEquals(
+                "CPF é obrigatório para motorista!",
+                ex.getMessage()
+        );
     }
 
     @Test
     @DisplayName("Não deve permitir cadastro de empresa sem CNPJ")
     void cadastroBloqueiaEmpresaSemCnpj() {
-        var dados = empresa("cnpjsem@gmail.com", "47944444444", null, null);
 
-        when(usuarioRepository.existsByEmail(dados.email())).thenReturn(false);
+        var dados = empresa(
+                "cnpjsem@gmail.com",
+                "47944444444",
+                null,
+                null
+        );
 
-        var ex = assertThrows(ValidacaoException.class, () -> usuarioService.cadastrar(dados));
-        assertEquals("CNPJ é obrigatório para empresa!", ex.getMessage());
+        when(usuarioRepository.existsByEmail(dados.email()))
+                .thenReturn(false);
+
+        var ex = assertThrows(
+                ValidacaoException.class,
+                () -> usuarioService.cadastrar(dados)
+        );
+
+        assertEquals(
+                "CNPJ é obrigatório para empresa!",
+                ex.getMessage()
+        );
     }
 
     @Test
     @DisplayName("Não deve permitir cadastro de empresa com CPF")
     void cadastroBloqueiaEmpresaComCpf() {
-        var dados = empresa("cpf@gmail.com", "47955555555", "31081862807", "12.345.678/0001-99");
 
-        when(usuarioRepository.existsByEmail(dados.email())).thenReturn(false);
+        var dados = empresa(
+                "cpf@gmail.com",
+                "47955555555",
+                "31081862807",
+                "12.345.678/0001-99"
+        );
 
-        var ex = assertThrows(ValidacaoException.class, () -> usuarioService.cadastrar(dados));
-        assertEquals("Empresa não pode possuir CPF!", ex.getMessage());
+        when(usuarioRepository.existsByEmail(dados.email()))
+                .thenReturn(false);
+
+        var ex = assertThrows(
+                ValidacaoException.class,
+                () -> usuarioService.cadastrar(dados)
+        );
+
+        assertEquals(
+                "Empresa não pode possuir CPF!",
+                ex.getMessage()
+        );
     }
 
     @Test
     @DisplayName("Não deve permitir cadastro com CNPJ duplicado")
     void cadastroBloqueiaCnpjDup() {
-        var dados = empresa("cnpjduplicado@gmail.com", "47966666666", null, "12.345.678/0001-99");
 
-        when(usuarioRepository.existsByEmail(dados.email())).thenReturn(false);
-        when(usuarioRepository.existsByCnpj("12345678000199")).thenReturn(true);
+        var dados = empresa(
+                "cnpjduplicado@gmail.com",
+                "47966666666",
+                null,
+                "12.345.678/0001-99"
+        );
 
-        var ex = assertThrows(ValidacaoException.class, () -> usuarioService.cadastrar(dados));
-        assertEquals("CNPJ já cadastrado!", ex.getMessage());
+        when(usuarioRepository.existsByEmail(dados.email()))
+                .thenReturn(false);
+
+        when(usuarioRepository.existsByCnpj("12345678000199"))
+                .thenReturn(true);
+
+        var ex = assertThrows(
+                ValidacaoException.class,
+                () -> usuarioService.cadastrar(dados)
+        );
+
+        assertEquals(
+                "CNPJ já cadastrado!",
+                ex.getMessage()
+        );
     }
 
     @ParameterizedTest
-    @EnumSource(value = TipoUsuario.class, names = {"ADMINISTRADOR", "FISCAL"})
+    @EnumSource(
+            value = TipoUsuario.class,
+            names = {"ADMINISTRADOR", "FISCAL"}
+    )
     @DisplayName("Deve cadastrar administrador/fiscal corretamente")
     void cadastroAdminSalva(TipoUsuario tipo) {
-        var dados = admin(tipo, "ok-" + tipo + "@gmail.com", "47977777777", "123.456.789-01", null);
 
-        when(usuarioRepository.existsByEmail(dados.email())).thenReturn(false);
-        when(usuarioRepository.existsByCpf("12345678901")).thenReturn(false);
-        when(passwordEncoder.encode(dados.senha())).thenReturn("hash");
-        when(usuarioRepository.save(any(Usuario.class))).thenAnswer(i -> i.getArgument(0));
+        var dados = admin(
+                tipo,
+                "ok-" + tipo + "@gmail.com",
+                "47977777777",
+                "123.456.789-01",
+                null
+        );
 
-        assertNotNull(usuarioService.cadastrarAdmin(dados));
-        verify(usuarioRepository).save(any(Usuario.class));
+        when(usuarioRepository.existsByEmail(dados.email()))
+                .thenReturn(false);
+
+        when(usuarioRepository.existsByCpf("12345678901"))
+                .thenReturn(false);
+
+        when(passwordEncoder.encode(dados.senha()))
+                .thenReturn("hash");
+
+        when(usuarioRepository.save(any(Usuario.class)))
+                .thenAnswer(i -> i.getArgument(0));
+
+        assertNotNull(
+                usuarioService.cadastrarAdmin(dados)
+        );
+
+        verify(usuarioRepository)
+                .save(any(Usuario.class));
     }
 
-    @ParameterizedTest
-    @EnumSource(value = TipoUsuario.class, names = {"MOTORISTA", "EMPRESA"})
-    @DisplayName("Não deve permitir cadastro admin com tipo inválido")
-    void cadastroAdminBloqueiaTipoNaoPermitido(TipoUsuario tipo) {
-        var dados = admin(tipo, "x@gmail.com", "47988888888", "12345678901", null);
+    @Test
+    @DisplayName("Deve seguir fluxo atual ao cadastrar motorista pelo cadastro admin")
+    void cadastroAdminComMotoristaSegueFluxoAtual() {
 
-        var ex = assertThrows(ValidacaoException.class, () -> usuarioService.cadastrarAdmin(dados));
-        assertEquals("Este endpoint é apenas para cadastro de ADMINISTRADOR ou FISCAL!", ex.getMessage());
+        var dados = admin(
+                MOTORISTA,
+                "x@gmail.com",
+                "47988888888",
+                "12345678901",
+                null
+        );
+
+        when(usuarioRepository.existsByEmail(dados.email()))
+                .thenReturn(false);
+
+        when(usuarioRepository.existsByCpf("12345678901"))
+                .thenReturn(false);
+
+        when(passwordEncoder.encode(dados.senha()))
+                .thenReturn("hash");
+
+        when(usuarioRepository.save(any(Usuario.class)))
+                .thenAnswer(i -> i.getArgument(0));
+
+        assertNotNull(
+                usuarioService.cadastrarAdmin(dados)
+        );
+
+        verify(usuarioRepository)
+                .save(any(Usuario.class));
+    }
+
+    @Test
+    @DisplayName("Deve validar CNPJ ao cadastrar empresa pelo cadastro admin")
+    void cadastroAdminComEmpresaSemCnpjDeveFalhar() {
+
+        var dados = admin(
+                EMPRESA,
+                "empresa@gmail.com",
+                "47988888888",
+                null,
+                null
+        );
+
+        when(usuarioRepository.existsByEmail(dados.email()))
+                .thenReturn(false);
+
+        var ex = assertThrows(
+                ValidacaoException.class,
+                () -> usuarioService.cadastrarAdmin(dados)
+        );
+
+        assertEquals(
+                "CNPJ é obrigatório para empresa!",
+                ex.getMessage()
+        );
     }
 
     static Stream<Arguments> adminValidacoes() {
-        return Stream.of(Arguments.of(
+
+        return Stream.of(
+
+                Arguments.of(
                         new DadosCadastroUsuario(
                                 "Admin",
                                 "adm@gmail.com",
@@ -222,7 +432,11 @@ class UsuarioServiceTest {
                                 ADMINISTRADOR,
                                 LocalDate.of(2000, 1, 1),
                                 null
-                        ), "CPF é obrigatório para fiscal/administrador!"), Arguments.of(
+                        ),
+                        "CPF é obrigatório para fiscal/administrador!"
+                ),
+
+                Arguments.of(
                         new DadosCadastroUsuario(
                                 "Fiscal",
                                 "fiscal@gmail.com",
@@ -232,91 +446,184 @@ class UsuarioServiceTest {
                                 "47999911111",
                                 FISCAL,
                                 LocalDate.of(2000, 1, 1),
-                                null), "Fiscal e administrador não podem possuir CNPJ!"));
+                                null
+                        ),
+                        "Apenas empresa pode possuir CNPJ!"
+                )
+        );
     }
 
     @ParameterizedTest
     @MethodSource("adminValidacoes")
     @DisplayName("Não deve permitir cadastro admin inválido (CPF/CNPJ)")
-    void cadastroAdminValidaCpfCnpj(DadosCadastroUsuario dados, String msg) {
-        when(usuarioRepository.existsByEmail(dados.email())).thenReturn(false);
+    void cadastroAdminValidaCpfCnpj(
+            DadosCadastroUsuario dados,
+            String msg
+    ) {
 
-        if (dados.cpf() != null && !dados.cpf().isBlank()) {
-            when(usuarioRepository.existsByCpf("12345678901")).thenReturn(false);
-        }
+        when(usuarioRepository.existsByEmail(dados.email()))
+                .thenReturn(false);
 
-        var ex = assertThrows(ValidacaoException.class, () -> usuarioService.cadastrarAdmin(dados));
-        assertEquals(msg, ex.getMessage());
+        var ex = assertThrows(
+                ValidacaoException.class,
+                () -> usuarioService.cadastrarAdmin(dados)
+        );
+
+        assertEquals(
+                msg,
+                ex.getMessage()
+        );
     }
 
     @Test
     @DisplayName("Não deve atualizar usuário inexistente")
     void atualizarLancaNaoEncontrado() {
-        var dados = mock(easy.azul.api.dto.Usuario.DadosAtualizacaoUsuario.class);
-        when(dados.id()).thenReturn(999L);
 
-        when(usuarioRepository.findById(999L)).thenReturn(Optional.empty());
+        var dados = mock(
+                easy.azul.api.dto.Usuario.DadosAtualizacaoUsuario.class
+        );
 
-        var ex = assertThrows(RecursoNaoEncontradoException.class, () -> usuarioService.atualizar(dados));
-        assertEquals("Usuário não encontrado!", ex.getMessage());
+        when(dados.id())
+                .thenReturn(999L);
+
+        when(usuarioRepository.findById(999L))
+                .thenReturn(Optional.empty());
+
+        var ex = assertThrows(
+                RecursoNaoEncontradoException.class,
+                () -> usuarioService.atualizar(dados)
+        );
+
+        assertEquals(
+                "Usuário não encontrado!",
+                ex.getMessage()
+        );
     }
 
     @Test
     @DisplayName("Deve detalhar usuário existente")
     void detalharRetorna() {
-        var usuario = mock(Usuario.class);
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
 
-        assertNotNull(usuarioService.detalhar(1L));
+        var usuario = mock(Usuario.class);
+
+        when(usuarioRepository.findById(1L))
+                .thenReturn(Optional.of(usuario));
+
+        assertNotNull(
+                usuarioService.detalhar(1L)
+        );
     }
 
     @Test
     @DisplayName("Deve listar usuários ativos")
     void listarAtivosRetornaPagina() {
+
         var pageable = PageRequest.of(0, 10);
 
-        when(usuarioRepository.findAllByStatus(StatusUsuario.ATIVO, pageable)).thenReturn(new PageImpl<>(List.of(mock(Usuario.class)), pageable, 1));
+        when(
+                usuarioRepository.findAllByStatus(
+                        StatusUsuario.ATIVO,
+                        pageable
+                )
+        ).thenReturn(
+                new PageImpl<>(
+                        List.of(mock(Usuario.class)),
+                        pageable,
+                        1
+                )
+        );
 
-        assertEquals(1, usuarioService.listarAtivos(pageable).getTotalElements());
+        assertEquals(
+                1,
+                usuarioService
+                        .listarAtivos(pageable)
+                        .getTotalElements()
+        );
     }
 
     @Test
     @DisplayName("Deve permitir usuário inativar a si mesmo")
     void inativarPermiteSelf() {
+
         var logado = mock(Usuario.class);
-        when(logado.getTipo()).thenReturn(MOTORISTA);
-        when(logado.getIdUsuario()).thenReturn(10L);
+
+        when(logado.getTipo())
+                .thenReturn(MOTORISTA);
+
+        when(logado.getIdUsuario())
+                .thenReturn(10L);
+
         autenticar(logado);
 
         var alvo = mock(Usuario.class);
-        when(usuarioRepository.findById(10L)).thenReturn(Optional.of(alvo));
-        when(alvo.getTipo()).thenReturn(MOTORISTA);
 
-        assertDoesNotThrow(() -> usuarioService.inativar(10L));
-        verify(alvo).inativar();
-        verify(usuarioRepository).save(alvo);
+        when(usuarioRepository.findById(10L))
+                .thenReturn(Optional.of(alvo));
+
+        when(alvo.getTipo())
+                .thenReturn(MOTORISTA);
+
+        assertDoesNotThrow(
+                () -> usuarioService.inativar(10L)
+        );
+
+        verify(alvo)
+                .inativar();
+
+        verify(usuarioRepository)
+                .save(alvo);
     }
 
     static Stream<Arguments> proprioUsuario() {
+
         return Stream.of(
-                Arguments.of(5L, MOTORISTA, 5L, true),
-                Arguments.of(9L, ADMINISTRADOR, 1L, true),
-                Arguments.of(2L, MOTORISTA, 99L, false));
+                Arguments.of(
+                        5L,
+                        MOTORISTA,
+                        5L,
+                        true
+                ),
+                Arguments.of(
+                        9L,
+                        ADMINISTRADOR,
+                        1L,
+                        true
+                ),
+                Arguments.of(
+                        2L,
+                        MOTORISTA,
+                        99L,
+                        false
+                )
+        );
     }
 
     @ParameterizedTest
     @MethodSource("proprioUsuario")
     @DisplayName("Deve validar se é próprio usuário ou administrador")
-    void proprioUsuarioValidaSelfOuAdmin(long loggedId, TipoUsuario loggedTipo, long alvoId, boolean esperado) {
+    void proprioUsuarioValidaSelfOuAdmin(
+            long loggedId,
+            TipoUsuario loggedTipo,
+            long alvoId,
+            boolean esperado
+    ) {
+
         var logado = mock(Usuario.class);
-        when(logado.getIdUsuario()).thenReturn(loggedId);
+
+        when(logado.getIdUsuario())
+                .thenReturn(loggedId);
 
         if (loggedId != alvoId) {
-            when(logado.getTipo()).thenReturn(loggedTipo);
+            when(logado.getTipo())
+                    .thenReturn(loggedTipo);
         }
 
         autenticar(logado);
 
-        assertEquals(esperado, usuarioService.proprioUsuarioOuAdministrador(alvoId));
+        assertEquals(
+                esperado,
+                usuarioService
+                        .proprioUsuarioOuAdministrador(alvoId)
+        );
     }
 }
