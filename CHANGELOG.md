@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.3.0 - 2026-09-01
+
+- Merge pull request #3 from JulianaForbici/develop
+
+
 ## v1.2.3 - 2026-09-01
 
 - Merge branch 'main' into develop
