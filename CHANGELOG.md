@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.1 - 2026-09-01
+
+- Merge remote-tracking branch 'origin/develop' into develop
+- feat: adicionado dependencia do leaflet e aumentado o min e o max de erro
+
+
 ## v1.0.0 - 2026-09-01
 
 - feat: add workflow do github
@@ -16,4 +22,3 @@
 - fix: retirado node
 - feat: adicionado projeto com front e back do easy-azul.
 - Initial commit
-
