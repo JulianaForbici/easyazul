@@ -347,6 +347,11 @@ class TicketEstacionamentoServiceTest {
         autenticar(usuarioReal(2L, TipoUsuario.FISCAL));
         assertTrue(service.podeCancelar(10L));
 
+        TicketEstacionamento ticket = ticketReal(10L);
+        ticket.getVeiculo().setDono(usuarioReal(100L, TipoUsuario.MOTORISTA));
+
+        when(ticketRepository.findById(10L)).thenReturn(Optional.of(ticket));
+
         autenticar(usuarioReal(3L, TipoUsuario.MOTORISTA));
         assertFalse(service.podeCancelar(10L));
 

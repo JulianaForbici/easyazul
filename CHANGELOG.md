@@ -1,15 +1,29 @@
 # Changelog
 
-## v1.2.0 - 2026-09-01
+## v1.2.3 - 2026-09-01
 
+- Merge branch 'main' into develop
+- docs: update changelog for v1.2.0
+
+
+## v1.2.2 - 2026-09-01
+
+- feito merge
 - Merge branch 'develop'
 - docs: update changelog for v1.1.0
 - Merge pull request #1 from JulianaForbici/develop
 
 
-## v1.1.0 - 2026-09-01
+## v1.2.1 - 2026-09-01
 
-- Merge pull request #1 from JulianaForbici/develop
+- fix: corrigido teste
+- docs: update changelog for v1.1.1
+
+
+## v1.1.1 - 2026-09-01
+
+- Merge remote-tracking branch 'origin/develop' into develop
+- fix: corrigido teste
 
 
 ## v1.0.3 - 2026-09-01
