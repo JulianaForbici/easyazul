@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import {ZonasAdminEdit} from '../zonas-admin-edit/zonas-admin-edit';
-import {ZonasAdminListComponent} from './zonas-admin-list';
+import { ZonasAdminListComponent } from './zonas-admin-list';
 
 describe('ZonasAdminListComponent', () => {
   let component: ZonasAdminListComponent;
@@ -9,8 +8,7 @@ describe('ZonasAdminListComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ZonasAdminListComponent]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ZonasAdminListComponent);
     component = fixture.componentInstance;
