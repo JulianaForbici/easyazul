@@ -81,7 +81,9 @@ public class TicketEstacionamentoService {
         TicketEstacionamento ticket = new TicketEstacionamento();
         ticket.setVeiculo(veiculo);
         ticket.setZona(zona);
-        ticket.setInicioTicket(LocalDateTime.now(clock));
+        LocalDateTime inicioTicket = LocalDateTime.now(clock);
+        ticket.setInicioTicket(inicioTicket);
+        ticket.setVenceEm(inicioTicket.plusMinutes(zona.getTempoMaximo()));
         ticket.setFimTicket(null);
         ticket.setAtivo(true);
         ticket.setStatus(StatusTicket.ATIVO);
@@ -110,11 +112,6 @@ public class TicketEstacionamentoService {
 
         long horas = (minutos + 59) / 60;
 
-        Integer tempoMaximo = ticket.getZona().getTempoMaximo();
-        if (tempoMaximo != null && tempoMaximo > 0 && horas > tempoMaximo) {
-            throw new ValidacaoException("Tempo máximo da zona excedido!");
-        }
-
         BigDecimal tarifa = ticket.getZona().getTarifa();
         BigDecimal valorCobrado = tarifa.multiply(BigDecimal.valueOf(horas));
 
@@ -122,6 +119,28 @@ public class TicketEstacionamentoService {
         ticket.setAtivo(false);
         ticket.setStatus(StatusTicket.FECHADO);
 
+        return new DadosDetalhamentoTicket(ticket);
+    }
+
+    @Transactional
+    public DadosDetalhamentoTicket renovar(Long idTicket) {
+        TicketEstacionamento ticket = ticketRepository.findById(idTicket)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Ticket não encontrado!"));
+
+        if (ticket.getStatus() != StatusTicket.ATIVO) {
+            throw new ValidacaoException("Só é possível renovar tickets ATIVOS!");
+        }
+
+        LocalDateTime venceEm = ticket.getVenceEm();
+        if (venceEm == null) {
+            throw new ValidacaoException("Ticket ativo sem horário de vencimento!");
+        }
+
+        if (!LocalDateTime.now(clock).isBefore(venceEm)) {
+            throw new ValidacaoException("Ticket vencido não pode ser renovado!");
+        }
+
+        ticket.setVenceEm(venceEm.plusMinutes(ticket.getZona().getTempoMaximo()));
         return new DadosDetalhamentoTicket(ticket);
     }
 
@@ -273,6 +292,7 @@ public class TicketEstacionamentoService {
         ticket.setVeiculo(veiculo);
         ticket.setZona(zona);
         ticket.setInicioTicket(LocalDateTime.now(clock));
+        ticket.setVenceEm(null);
         ticket.setFimTicket(null);
         ticket.setAtivo(true);
         ticket.setStatus(StatusTicket.RESERVADO);
@@ -291,18 +311,13 @@ public class TicketEstacionamentoService {
             throw new ValidacaoException("Só é possível iniciar tickets RESERVADOS!");
         }
 
-        var limite = ticket.getInicioTicket().plusMinutes(10);
-        if (LocalDateTime.now(clock).isAfter(limite)) {
-            ticket.setStatus(StatusTicket.CANCELADO);
-            ticket.setAtivo(false);
-            ticket.setFimTicket(LocalDateTime.now(clock));
-            ticket.setValor(BigDecimal.ZERO);
-            throw new ValidacaoException("Reserva expirada! Faça uma nova reserva.");
-        }
-
+        LocalDateTime agora = LocalDateTime.now(clock);
+        LocalDateTime limite = ticket.getInicioTicket().plusMinutes(10);
+        LocalDateTime inicioTicket = agora.isAfter(limite) ? limite : agora;
         ticket.setStatus(StatusTicket.ATIVO);
         ticket.setAtivo(true);
-        ticket.setInicioTicket(LocalDateTime.now(clock)); // zera o “tempo grátis”
+        ticket.setInicioTicket(inicioTicket); // zera o “tempo grátis”
+        ticket.setVenceEm(inicioTicket.plusMinutes(ticket.getZona().getTempoMaximo()));
         ticket.setFimTicket(null);
         ticket.setValor(BigDecimal.ZERO);
 
@@ -327,27 +342,12 @@ public class TicketEstacionamentoService {
             }
 
             t.setStatus(StatusTicket.ATIVO);
-            t.setInicioTicket(t.getInicioTicket().plusMinutes(10));
+            LocalDateTime inicioTicket = t.getInicioTicket().plusMinutes(10);
+            t.setInicioTicket(inicioTicket);
+            t.setVenceEm(inicioTicket.plusMinutes(t.getZona().getTempoMaximo()));
             t.setFimTicket(null);
             t.setValor(BigDecimal.ZERO);
             t.setAtivo(true);
-        }
-
-        return reservas.size();
-    }
-
-    @Transactional
-    public int expirarReservasAtrasadas() {
-        LocalDateTime limite = LocalDateTime.now(clock).minusMinutes(10);
-
-        List<TicketEstacionamento> reservas = ticketRepository
-                .findByStatusAndAtivoTrueAndInicioTicketLessThanEqual(StatusTicket.RESERVADO, limite);
-
-        for (TicketEstacionamento t : reservas) {
-            t.setStatus(StatusTicket.CANCELADO);
-            t.setAtivo(false);
-            t.setFimTicket(LocalDateTime.now(clock));
-            t.setValor(BigDecimal.ZERO);
         }
 
         return reservas.size();

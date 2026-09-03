@@ -30,6 +30,9 @@ public class TicketEstacionamento {
     @Column(name = "inicio_ticket", nullable = false)
     private LocalDateTime inicioTicket;
 
+    @Column(name = "vence_em")
+    private LocalDateTime venceEm;
+
     @Column(name = "fim_ticket")
     private LocalDateTime fimTicket;
 

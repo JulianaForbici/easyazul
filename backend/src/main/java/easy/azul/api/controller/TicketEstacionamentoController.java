@@ -34,6 +34,13 @@ public class TicketEstacionamentoController {
         return ResponseEntity.ok(ticketService.fechar(id));
     }
 
+    @PostMapping("/{id}/renovar")
+    @Transactional
+    @PreAuthorize("@ticketEstacionamentoService.podeFechar(#id)")
+    public ResponseEntity<DadosDetalhamentoTicket> renovar(@PathVariable Long id) {
+        return ResponseEntity.ok(ticketService.renovar(id));
+    }
+
     @PostMapping("/{id}/cancelar")
     @Transactional
     @PreAuthorize("@ticketEstacionamentoService.podeCancelar(#id)")

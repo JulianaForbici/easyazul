@@ -101,6 +101,12 @@
                   <span>Valor: {{ valorLabel(t) }}</span>
                 </div>
               </div>
+
+              <app-ticket-time-indicator
+                *ngIf="statusOf(t) === 'ATIVO'"
+                class="ticket-time"
+                [ticket]="t"
+              ></app-ticket-time-indicator>
             </div>
 
             <div class="ez-row-actions">

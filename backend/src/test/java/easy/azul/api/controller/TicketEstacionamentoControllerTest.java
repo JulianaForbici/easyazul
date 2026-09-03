@@ -14,7 +14,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,6 +59,31 @@ class TicketEstacionamentoControllerTest {
         assertSame(esperado, response.getBody());
         verify(ticketService).fechar(id);
         verifyNoMoreInteractions(ticketService);
+    }
+
+    @Test
+    void renovarDeveRetornarOkEBodyDoService() {
+        Long id = 10L;
+        var esperado = mock(DadosDetalhamentoTicket.class);
+
+        when(ticketService.renovar(id)).thenReturn(esperado);
+
+        ResponseEntity<DadosDetalhamentoTicket> response = controller.renovar(id);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertSame(esperado, response.getBody());
+        verify(ticketService).renovar(id);
+        verifyNoMoreInteractions(ticketService);
+    }
+
+    @Test
+    void renovarDeveUsarMesmaAutorizacaoDoFechamento() throws NoSuchMethodException {
+        Method renovar = TicketEstacionamentoController.class.getMethod("renovar", Long.class);
+
+        PreAuthorize autorizacao = renovar.getAnnotation(PreAuthorize.class);
+
+        assertNotNull(autorizacao);
+        assertEquals("@ticketEstacionamentoService.podeFechar(#id)", autorizacao.value());
     }
 
     @Test
