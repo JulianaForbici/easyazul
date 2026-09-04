@@ -120,6 +120,14 @@
                 <span class="material-icons">done_all</span>
               </button>
 
+              <button class="ez-icon primary" type="button" title="Adicionar 30 minutos" (click)="renovar(t, 30)" [disabled]="!podeRenovar(t)">
+                <span class="material-icons">update</span>
+              </button>
+              
+              <button class="ez-icon primary" type="button" title="Adicionar 1 hora" (click)="renovar(t, 60)" [disabled]="!podeRenovar(t)">
+                <span class="material-icons">more_time</span>
+              </button>
+
               <button
                 *ngIf="exibePagar(t)"
                 class="ez-icon pay"

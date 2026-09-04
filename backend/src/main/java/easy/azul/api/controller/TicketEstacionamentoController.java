@@ -3,6 +3,7 @@ package easy.azul.api.controller;
 import easy.azul.api.dto.Ticket.DadosCadastroTicket;
 import easy.azul.api.dto.Ticket.DadosDetalhamentoTicket;
 import easy.azul.api.dto.Ticket.DadosReservaTicket;
+import easy.azul.api.dto.Ticket.DadosRenovacaoTicket;
 import easy.azul.api.service.TicketEstacionamentoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,4 +73,14 @@ public class TicketEstacionamentoController {
     public ResponseEntity<DadosDetalhamentoTicket> iniciar(@PathVariable Long id) {
         return ResponseEntity.ok(ticketService.iniciar(id));
     }
+
+    @PostMapping("/{id}/renovar")
+    @Transactional
+    @PreAuthorize("@ticketEstacionamentoService.podeRenovar(#id)")
+    public ResponseEntity<DadosDetalhamentoTicket> renovar(
+            @PathVariable Long id, 
+            @RequestBody @Valid DadosRenovacaoTicket dados) {
+        return ResponseEntity.ok(ticketService.renovar(id, dados));
+    }
+
 }

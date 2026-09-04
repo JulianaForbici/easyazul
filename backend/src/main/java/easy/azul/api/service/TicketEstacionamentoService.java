@@ -3,6 +3,7 @@ package easy.azul.api.service;
 import easy.azul.api.dto.Ticket.DadosCadastroTicket;
 import easy.azul.api.dto.Ticket.DadosDetalhamentoTicket;
 import easy.azul.api.dto.Ticket.DadosReservaTicket;
+import easy.azul.api.dto.Ticket.DadosRenovacaoTicket;
 import easy.azul.api.entity.Enum.*;
 import easy.azul.api.infra.exception.RecursoNaoEncontradoException;
 import easy.azul.api.infra.exception.ValidacaoException;
@@ -21,6 +22,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -49,6 +51,10 @@ public class TicketEstacionamentoService {
 
     public boolean podeIniciar(Long id) {
         return true;
+    }
+
+    public boolean podeRenovar(Long id) {
+        return podeFechar(id);
     }
 
     @Transactional
@@ -351,6 +357,31 @@ public class TicketEstacionamentoService {
         }
 
         return reservas.size();
+    }
+
+    @Transactional
+    public DadosDetalhamentoTicket renovar(Long id, DadosRenovacaoTicket dados) {
+        TicketEstacionamento ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new ValidacaoException("Ticket não encontrado com o ID: " + id));
+
+        if (Boolean.FALSE.equals(ticket.getAtivo())) {
+            throw new ValidacaoException("Apenas tickets ativos podem ser renovados.");
+        }
+
+        LocalDateTime agora = LocalDateTime.now(clock);
+
+        // Se já tiver uma data fim e ela já passou, não permite renovar
+        if (ticket.getFimTicket() != null && ticket.getFimTicket().isBefore(agora)) {
+            throw new ValidacaoException("Este ticket já expirou e não pode ser renovado.");
+        }
+
+        // Se fimTicket for nulo, soma a partir de agora; se já existir, estende a partir do fim atual
+        LocalDateTime baseCalculo = ticket.getFimTicket() != null ? ticket.getFimTicket() : agora;
+        ticket.setFimTicket(baseCalculo.plusMinutes(dados.minutosAdicionais()));
+
+        ticketRepository.save(ticket);
+
+        return new DadosDetalhamentoTicket(ticket);
     }
 
     private void validarFechadoSemPagamento(Veiculo veiculo) {
