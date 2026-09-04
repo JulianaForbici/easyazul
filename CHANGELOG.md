@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.0 - 2026-09-04
+
+- Merge pull request #5 from JulianaForbici/feature/contador-ticket
+- feat: adiciona contador e vencimento de tickets
+
+
 ## v1.3.0 - 2026-09-01
 
 - Merge pull request #3 from JulianaForbici/develop
