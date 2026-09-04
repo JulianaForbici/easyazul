@@ -13,13 +13,14 @@ import {
   PagamentoService,
 } from '../../../core/api/pagamento.service/pagamento';
 import { AuthService } from '../../../core/auth/auth.service';
+import { TicketTimeIndicatorComponent } from '../../../shared/tickets/ticket-time-indicator/ticket-time-indicator';
 
 type FiltroStatus = 'TODOS' | 'ATIVO' | 'RESERVADO' | 'FECHADO' | 'CANCELADO';
 
 @Component({
   selector: 'app-meus-tickets',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TicketTimeIndicatorComponent],
   templateUrl: './meus-tickets.html',
   styleUrl: './meus-tickets.scss',
 })

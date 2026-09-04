@@ -1,0 +1,66 @@
+:host {
+  display: block;
+}
+
+.ticket-time-indicator {
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.ticket-time-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  opacity: 0.9;
+}
+
+.ticket-time-state {
+  padding: 2px 6px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.ticket-time-summary b {
+  font-variant-numeric: tabular-nums;
+}
+
+.ticket-time-progress {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ticket-time-progress-value {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #2ecc71;
+  transition: width 0.9s linear;
+}
+
+.ticket-time-indicator.atencao {
+  color: #f1c40f;
+}
+
+.ticket-time-indicator.atencao .ticket-time-progress-value {
+  background: #f1c40f;
+}
+
+.ticket-time-indicator.critico,
+.ticket-time-indicator.expirado {
+  color: #ff8f8f;
+}
+
+.ticket-time-indicator.critico .ticket-time-progress-value,
+.ticket-time-indicator.expirado .ticket-time-progress-value {
+  background: #e74c3c;
+}
+
+.ticket-time-indicator.indisponivel {
+  opacity: 0.7;
+}

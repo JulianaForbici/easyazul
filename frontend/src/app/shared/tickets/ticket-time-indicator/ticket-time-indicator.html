@@ -1,0 +1,24 @@
+<section class="ticket-time-indicator" [class]="'ticket-time-indicator ' + estadoTempo">
+  <ng-container *ngIf="possuiPeriodoValido; else periodoIndisponivel">
+    <div class="ticket-time-summary">
+      <span>Limite: <b>{{ horarioLimite }}</b></span>
+      <span>Restante: <b>{{ tempoRestante }}</b></span>
+      <span *ngIf="exibirEstado" class="ticket-time-state">{{ rotuloEstado }}</span>
+    </div>
+
+    <div
+      class="ticket-time-progress"
+      role="progressbar"
+      aria-label="Tempo restante do ticket"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      [attr.aria-valuenow]="progressoRestante"
+    >
+      <span class="ticket-time-progress-value" [style.width.%]="progressoRestante"></span>
+    </div>
+  </ng-container>
+
+  <ng-template #periodoIndisponivel>
+    <span class="ticket-time-label">Informações de tempo indisponíveis</span>
+  </ng-template>
+</section>
