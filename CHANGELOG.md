@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.5.1 - 2026-09-05
+
+- Merge pull request #9 from JulianaForbici/bugfix/ajusta-versionamento
+- Merge pull request #8 from JulianaForbici/feature/alerta-restante-ticket
+- fix: ajustado push do versionamento por conta da ruleset criada
+- feature: adicionado alerta de atencao/critico nos tickets
+
+
 ## v1.5.0 - 2026-09-05
 
 - Merge pull request #7 from JulianaForbici/bugfix/retirado-cpf-opcional-cadastro
