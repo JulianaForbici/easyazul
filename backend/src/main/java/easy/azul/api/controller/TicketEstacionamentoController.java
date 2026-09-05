@@ -37,9 +37,11 @@ public class TicketEstacionamentoController {
 
     @PostMapping("/{id}/renovar")
     @Transactional
-    @PreAuthorize("@ticketEstacionamentoService.podeFechar(#id)")
-    public ResponseEntity<DadosDetalhamentoTicket> renovar(@PathVariable Long id) {
-        return ResponseEntity.ok(ticketService.renovar(id));
+    @PreAuthorize("@ticketEstacionamentoService.podeRenovar(#id)")
+    public ResponseEntity<DadosDetalhamentoTicket> renovar(
+            @PathVariable Long id, 
+            @RequestBody(required = false) @Valid DadosRenovacaoTicket dados) {
+        return ResponseEntity.ok(ticketService.renovar(id, dados));
     }
 
     @PostMapping("/{id}/cancelar")
@@ -79,15 +81,6 @@ public class TicketEstacionamentoController {
     @PreAuthorize("@ticketEstacionamentoService.podeIniciar(#id)")
     public ResponseEntity<DadosDetalhamentoTicket> iniciar(@PathVariable Long id) {
         return ResponseEntity.ok(ticketService.iniciar(id));
-    }
-
-    @PostMapping("/{id}/renovar")
-    @Transactional
-    @PreAuthorize("@ticketEstacionamentoService.podeRenovar(#id)")
-    public ResponseEntity<DadosDetalhamentoTicket> renovar(
-            @PathVariable Long id, 
-            @RequestBody @Valid DadosRenovacaoTicket dados) {
-        return ResponseEntity.ok(ticketService.renovar(id, dados));
     }
 
 }

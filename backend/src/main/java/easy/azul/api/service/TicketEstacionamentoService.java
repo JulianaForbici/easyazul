@@ -392,9 +392,14 @@ public class TicketEstacionamentoService {
             throw new ValidacaoException("Este ticket já expirou e não pode ser renovado.");
         }
 
+        // Define 30 minutos se o corpo ou os minutos vierem nulos/vazios
+        int minutos = (dados != null && dados.minutosAdicionais() != null)
+                ? dados.minutosAdicionais()
+                : 30;
+
         // Se fimTicket for nulo, soma a partir de agora; se já existir, estende a partir do fim atual
         LocalDateTime baseCalculo = ticket.getFimTicket() != null ? ticket.getFimTicket() : agora;
-        ticket.setFimTicket(baseCalculo.plusMinutes(dados.minutosAdicionais()));
+        ticket.setFimTicket(baseCalculo.plusMinutes(minutos));
 
         ticketRepository.save(ticket);
 
