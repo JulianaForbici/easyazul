@@ -1,6 +1,8 @@
 <div class="app-shell">
   <app-header *ngIf="!(hideHeader$ | async)"></app-header>
 
+  <app-ticket-expiry-alert></app-ticket-expiry-alert>
+
   <main class="app-main">
     <router-outlet></router-outlet>
   </main>

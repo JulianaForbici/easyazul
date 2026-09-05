@@ -77,7 +77,7 @@ export class TicketTimeIndicatorComponent implements OnInit, OnChanges, OnDestro
 
     const restante = this.vencimentoMs! - this.agoraMs;
     if (restante <= 0) return 'expirado';
-    if (restante <= 5 * 60 * 1000) return 'critico';
+    if (restante <= 10 * 60 * 1000) return 'critico';
     if (restante <= 15 * 60 * 1000) return 'atencao';
     return 'normal';
   }
