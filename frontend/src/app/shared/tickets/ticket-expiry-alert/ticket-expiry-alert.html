@@ -1,0 +1,39 @@
+<div class="ticket-alerts" *ngIf="avisos.length > 0">
+
+  <div
+    class="ticket-alert"
+    *ngFor="let aviso of avisos"
+    [class.critico]="aviso.minutos === 10"
+  >
+    <span class="material-icons alert-icon">
+      {{ aviso.minutos === 10 ? 'warning' : 'schedule' }}
+    </span>
+
+    <div class="alert-content">
+      <div class="alert-title">
+        Ticket expirando
+      </div>
+
+      <div class="alert-text">
+        O ticket da placa
+        <b>{{ aviso.placa }}</b>
+        expira em aproximadamente
+        <b>{{ aviso.minutos }} minutos</b>.
+      </div>
+
+      <a routerLink="/tickets" class="alert-link">
+        Ver ticket
+      </a>
+    </div>
+
+    <button
+      class="alert-close"
+      type="button"
+      title="Fechar"
+      (click)="fechar(aviso.chave)"
+    >
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+
+</div>
