@@ -393,7 +393,7 @@ public class TicketEstacionamentoService {
         }
 
         // Define 30 minutos se o corpo ou os minutos vierem nulos/vazios
-        int minutos = (dados != null && dados.minutosAdicionais() != null)
+        long minutos = (dados != null && dados.minutosAdicionais() != null)
                 ? dados.minutosAdicionais()
                 : 30;
 
