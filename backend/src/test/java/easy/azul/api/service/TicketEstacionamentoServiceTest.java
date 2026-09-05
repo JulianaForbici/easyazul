@@ -197,6 +197,7 @@ class TicketEstacionamentoServiceTest {
         when(veiculoRepository.findById(20L)).thenReturn(Optional.of(veiculo));
         when(zonaRepository.findById(10L)).thenReturn(Optional.of(zona));
         when(ticketRepository.existsByVeiculo_IdAndStatus(20L, StatusTicket.ATIVO)).thenReturn(false);
+        zona.setTempoMaximo(120);
 
         when(ticketRepository.save(any(TicketEstacionamento.class))).thenAnswer(inv -> {
             TicketEstacionamento t = inv.getArgument(0);
@@ -215,6 +216,7 @@ class TicketEstacionamentoServiceTest {
         assertEquals("ATIVO", retorno.status());
         assertEquals(BigDecimal.ZERO, retorno.valor());
         assertTrue(retorno.ativo());
+        assertEquals(LocalDateTime.of(2025, 12, 19, 12, 0), retorno.venceEm());
 
         verify(ticketRepository).save(any(TicketEstacionamento.class));
     }
@@ -237,7 +239,7 @@ class TicketEstacionamentoServiceTest {
     }
 
     @Test
-    void fecharQuandoTempoMaximoExcedidoDeveLancarValidacao() {
+    void fecharQuandoTempoMaximoExcedidoDeveFecharNormalmente() {
         TicketEstacionamento ticket = ticketReal(1L);
         ticket.setStatus(StatusTicket.ATIVO);
         ticket.getZona().setTempoMaximo(1);
@@ -245,7 +247,11 @@ class TicketEstacionamentoServiceTest {
 
         when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
 
-        assertThrows(ValidacaoException.class, () -> service.fechar(1L));
+        DadosDetalhamentoTicket dto = service.fechar(1L);
+
+        assertEquals("FECHADO", dto.status());
+        assertEquals(new BigDecimal("10.00"), dto.valor());
+        assertEquals(LocalDateTime.of(2025, 12, 19, 10, 0), dto.fimTicket());
     }
 
     @Test
@@ -265,6 +271,126 @@ class TicketEstacionamentoServiceTest {
         assertFalse(dto.ativo());
         assertEquals(new BigDecimal("5.00"), dto.valor());
         assertNotNull(dto.fimTicket());
+    }
+
+    @Test
+    void renovarQuandoValidoDeveAdicionarPeriodoAoVencimentoAtual() {
+        TicketEstacionamento ticket = ticketReal(1L);
+        ticket.setVenceEm(LocalDateTime.of(2025, 12, 19, 16, 13));
+        ticket.getZona().setTempoMaximo(120);
+
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
+
+        DadosDetalhamentoTicket dto = service.renovar(1L);
+
+        assertEquals(LocalDateTime.of(2025, 12, 19, 18, 13), dto.venceEm());
+        assertEquals(LocalDateTime.of(2025, 12, 19, 9, 0), dto.inicioTicket());
+        assertNull(dto.fimTicket());
+        assertEquals("ATIVO", dto.status());
+        assertEquals(BigDecimal.ZERO, dto.valor());
+    }
+
+    @Test
+    void renovarQuandoTicketNaoExisteDeveLancarRecursoNaoEncontrado() {
+        when(ticketRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNaoEncontradoException.class, () -> service.renovar(1L));
+    }
+
+    @Test
+    void renovarQuandoTicketNaoEstaAtivoDeveLancarValidacao() {
+        TicketEstacionamento ticket = ticketReal(1L);
+        ticket.setStatus(StatusTicket.FECHADO);
+
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
+
+        assertThrows(ValidacaoException.class, () -> service.renovar(1L));
+    }
+
+    @Test
+    void renovarQuandoTicketJaVenceuDeveLancarValidacao() {
+        TicketEstacionamento ticket = ticketReal(1L);
+        ticket.setVenceEm(LocalDateTime.of(2025, 12, 19, 9, 59, 59));
+
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
+
+        assertThrows(ValidacaoException.class, () -> service.renovar(1L));
+    }
+
+    @Test
+    void renovarNoInstanteDoVencimentoDeveLancarValidacao() {
+        TicketEstacionamento ticket = ticketReal(1L);
+        ticket.setVenceEm(LocalDateTime.of(2025, 12, 19, 10, 0));
+
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
+
+        assertThrows(ValidacaoException.class, () -> service.renovar(1L));
+    }
+
+    @Test
+    void renovarQuandoVencimentoNaoExisteDeveLancarValidacao() {
+        TicketEstacionamento ticket = ticketReal(1L);
+        ticket.setVenceEm(null);
+
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
+
+        assertThrows(ValidacaoException.class, () -> service.renovar(1L));
+    }
+
+    @Test
+    void iniciarReservaDeveDefinirVencimentoAPartirDoInicioEfetivo() {
+        TicketEstacionamento ticket = ticketReal(1L);
+        ticket.setStatus(StatusTicket.RESERVADO);
+        ticket.setInicioTicket(LocalDateTime.of(2025, 12, 19, 9, 55));
+        ticket.setVenceEm(null);
+        ticket.getZona().setTempoMaximo(120);
+
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
+
+        DadosDetalhamentoTicket dto = service.iniciar(1L);
+
+        assertEquals("ATIVO", dto.status());
+        assertEquals(LocalDateTime.of(2025, 12, 19, 10, 0), dto.inicioTicket());
+        assertEquals(LocalDateTime.of(2025, 12, 19, 12, 0), dto.venceEm());
+    }
+
+    @Test
+    void iniciarReservaAposToleranciaDeveUsarInicioEfetivoDaPromocaoAutomatica() {
+        TicketEstacionamento ticket = ticketReal(1L);
+        ticket.setStatus(StatusTicket.RESERVADO);
+        ticket.setInicioTicket(LocalDateTime.of(2025, 12, 19, 9, 45));
+        ticket.setVenceEm(null);
+        ticket.getZona().setTempoMaximo(120);
+
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
+
+        DadosDetalhamentoTicket dto = service.iniciar(1L);
+
+        assertEquals("ATIVO", dto.status());
+        assertEquals(LocalDateTime.of(2025, 12, 19, 9, 55), dto.inicioTicket());
+        assertEquals(LocalDateTime.of(2025, 12, 19, 11, 55), dto.venceEm());
+        assertNull(dto.fimTicket());
+    }
+
+    @Test
+    void iniciarReservasAtrasadasDeveDefinirVencimentoAPartirDoInicioEfetivo() {
+        TicketEstacionamento ticket = ticketReal(1L);
+        ticket.setStatus(StatusTicket.RESERVADO);
+        ticket.setInicioTicket(LocalDateTime.of(2025, 12, 19, 9, 50));
+        ticket.setVenceEm(null);
+        ticket.getZona().setTempoMaximo(120);
+
+        when(ticketRepository.findByStatusAndAtivoTrueAndInicioTicketLessThanEqual(
+                StatusTicket.RESERVADO,
+                LocalDateTime.of(2025, 12, 19, 9, 50)))
+                .thenReturn(List.of(ticket));
+
+        int quantidade = service.iniciarReservasAtrasadas();
+
+        assertEquals(1, quantidade);
+        assertEquals(StatusTicket.ATIVO, ticket.getStatus());
+        assertEquals(LocalDateTime.of(2025, 12, 19, 10, 0), ticket.getInicioTicket());
+        assertEquals(LocalDateTime.of(2025, 12, 19, 12, 0), ticket.getVenceEm());
     }
 
     @Test

@@ -19,6 +19,7 @@ export type Ticket = {
   nomeZona?: string;
 
   inicioTicket?: string;
+  venceEm?: string;
   fimTicket?: string;
 
   valor?: number;
@@ -69,6 +70,10 @@ export class TicketService {
 
   fechar(id: number): Observable<Ticket> {
     return this.http.post<Ticket>(`${this.base}/tickets/${id}/fechar`, {});
+  }
+
+  renovar(id: number): Observable<Ticket> {
+    return this.http.post<Ticket>(`${this.base}/tickets/${id}/renovar`, {});
   }
 
   cancelar(id: number): Observable<Ticket> {
