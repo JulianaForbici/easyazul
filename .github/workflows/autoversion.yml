@@ -7,56 +7,42 @@ on:
       - main
 
   workflow_dispatch:
-    inputs:
-      target_branch:
-        description: "Branch alvo"
-        required: true
-        type: choice
-        default: develop
-        options:
-          - develop
-          - main
 
 permissions:
   contents: write
 
 concurrency:
-  group: autoversion-${{ github.ref_name }}
+  group: autoversion
   cancel-in-progress: false
 
 jobs:
   auto-tag:
     name: Calcular versão e atualizar changelog
-    if: github.actor != 'github-actions[bot]'
+    if: >
+      github.actor != 'github-actions[bot]' &&
+      (github.ref_name == 'develop' || github.ref_name == 'main')
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
 
       - name: Definir branch
         id: branch
         env:
-          EVENT_NAME: ${{ github.event_name }}
           REF_NAME: ${{ github.ref_name }}
-          DISPATCH_BRANCH: ${{ github.event.inputs.target_branch || '' }}
         run: |
           set -euo pipefail
 
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            TARGET_BRANCH="$DISPATCH_BRANCH"
-          else
-            TARGET_BRANCH="$REF_NAME"
-          fi
-
-          if [ "$TARGET_BRANCH" != "develop" ] && [ "$TARGET_BRANCH" != "main" ]; then
-            echo "Branch não suportada: $TARGET_BRANCH"
+          if [ "$REF_NAME" != "develop" ] && [ "$REF_NAME" != "main" ]; then
+            echo "Branch não suportada: $REF_NAME"
             exit 1
           fi
 
-          echo "target_branch=$TARGET_BRANCH" >> "$GITHUB_OUTPUT"
+          echo "target_branch=$REF_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Calcular próxima versão
         id: version
@@ -98,6 +84,7 @@ jobs:
 
       - name: Atualizar changelog
         id: changelog
+        if: steps.branch.outputs.target_branch == 'develop'
         env:
           LAST_TAG: ${{ steps.version.outputs.last_tag }}
           NEXT_TAG: ${{ steps.version.outputs.next_tag }}
@@ -141,11 +128,12 @@ jobs:
 
           echo "has_updates=true" >> "$GITHUB_OUTPUT"
 
-      - name: Commitar changelog
-        if: steps.changelog.outputs.has_updates == 'true'
+      - name: Commitar changelog na develop
+        if: >
+          steps.branch.outputs.target_branch == 'develop' &&
+          steps.changelog.outputs.has_updates == 'true'
         env:
           NEXT_TAG: ${{ steps.version.outputs.next_tag }}
-          TARGET_BRANCH: ${{ steps.branch.outputs.target_branch }}
         run: |
           set -euo pipefail
 
@@ -161,10 +149,9 @@ jobs:
           fi
 
           git commit -m "docs: update changelog for ${NEXT_TAG}"
-          git push origin HEAD:"$TARGET_BRANCH"
+          git push origin HEAD:develop
 
       - name: Criar tag
-        if: steps.changelog.outputs.has_updates == 'true'
         env:
           NEXT_TAG: ${{ steps.version.outputs.next_tag }}
         run: |
