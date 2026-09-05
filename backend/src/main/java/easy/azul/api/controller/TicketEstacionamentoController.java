@@ -44,6 +44,10 @@ public class TicketEstacionamentoController {
         return ResponseEntity.ok(ticketService.renovar(id, dados));
     }
 
+    public ResponseEntity<DadosDetalhamentoTicket> renovar(Long id) {
+        return renovar(id, null);
+    }
+
     @PostMapping("/{id}/cancelar")
     @Transactional
     @PreAuthorize("@ticketEstacionamentoService.podeCancelar(#id)")
