@@ -38,6 +38,10 @@ export type Page<T> = {
   last: boolean;
 };
 
+export type DadosRenovacaoTicket = {
+  minutosAdicionais: number;
+};
+
 @Injectable({ providedIn: 'root' })
 export class TicketService {
   private base = environment.apiUrl;
@@ -68,11 +72,12 @@ export class TicketService {
     return this.http.post<Ticket>(`${this.base}/tickets/${id}/fechar`, {});
   }
 
-  renovar(id: number): Observable<Ticket> {
-    return this.http.post<Ticket>(`${this.base}/tickets/${id}/renovar`, {});
+  renovar(id: number, minutosAdicionais: number = 30): Observable<Ticket> {
+    return this.http.post<Ticket>(`${this.base}/tickets/${id}/renovar`, { minutosAdicionais });
   }
 
   cancelar(id: number): Observable<Ticket> {
     return this.http.post<Ticket>(`${this.base}/tickets/${id}/cancelar`, {});
   }
+  
 }

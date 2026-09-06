@@ -310,6 +310,10 @@ export class MeusTicketsComponent implements OnInit {
     return this.statusOf(t) === 'ATIVO';
   }
 
+  protected podeRenovar(t: Ticket): boolean {
+    return this.statusOf(t) === 'ATIVO';
+  }
+
   protected podePagar(t: Ticket): boolean {
     return this.statusOf(t) === 'FECHADO' && !this.temPagamentoEmAberto(t);
   }
@@ -415,6 +419,55 @@ export class MeusTicketsComponent implements OnInit {
               (typeof e.error === 'string' && e.error) ||
               (e.error as any)?.message ||
               'Não foi possível fechar.';
+            this.modalHtml = `<div class="md"><div class="err">${this.escapeHtml(msg)}</div></div>`;
+            this.acaoConfirmar = null;
+            this.textoConfirmar = 'Ok';
+          },
+        });
+    };    
+
+    this.modalAberto = true;
+  }
+
+  protected renovar(t: Ticket, minutos: number): void {
+    const id = this.getId(t);
+    if (!id) return;
+
+    const textoTempo = minutos >= 60 ? `${minutos / 60} hora(s)` : `${minutos} minutos`;
+
+    this.modalTitulo = 'Renovar ticket';
+    this.modalHtml = `
+      <div class="md">
+        Deseja adicionar <b>${textoTempo}</b> ao ticket da placa <b>${this.escapeHtml(this.placaOf(t))}</b>?
+        <div class="hint">O horário de término será estendido.</div>
+      </div>
+    `;
+    this.textoConfirmar = 'Renovar';
+
+    this.acaoConfirmar = () => {
+      this.carregando = true;
+      this.erro = null;
+      this.cdr.detectChanges();
+
+      this.api
+        .renovar(id, minutos)
+        .pipe(
+          finalize(() => {
+            this.carregando = false;
+            this.cdr.detectChanges();
+          })
+        )
+        .subscribe({
+          next: () => {
+            this.fecharModal();
+            this.carregar();
+          },
+          error: (e: HttpErrorResponse) => {
+            console.error(e);
+            const msg =
+              (typeof e.error === 'string' && e.error) ||
+              (e.error as any)?.message ||
+              'Não foi possível renovar o ticket.';
             this.modalHtml = `<div class="md"><div class="err">${this.escapeHtml(msg)}</div></div>`;
             this.acaoConfirmar = null;
             this.textoConfirmar = 'Ok';

@@ -3,6 +3,7 @@ package easy.azul.api.service;
 import easy.azul.api.dto.Ticket.DadosCadastroTicket;
 import easy.azul.api.dto.Ticket.DadosDetalhamentoTicket;
 import easy.azul.api.dto.Ticket.DadosReservaTicket;
+import easy.azul.api.dto.Ticket.DadosRenovacaoTicket;
 import easy.azul.api.entity.Enum.*;
 import easy.azul.api.infra.exception.RecursoNaoEncontradoException;
 import easy.azul.api.infra.exception.ValidacaoException;
@@ -21,6 +22,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -49,6 +51,10 @@ public class TicketEstacionamentoService {
 
     public boolean podeIniciar(Long id) {
         return true;
+    }
+
+    public boolean podeRenovar(Long id) {
+        return podeFechar(id);
     }
 
     @Transactional
@@ -121,9 +127,14 @@ public class TicketEstacionamentoService {
 
         return new DadosDetalhamentoTicket(ticket);
     }
-
+    
     @Transactional
     public DadosDetalhamentoTicket renovar(Long idTicket) {
+        return renovar(idTicket, null);
+    }
+
+    @Transactional
+    public DadosDetalhamentoTicket renovar(Long idTicket, DadosRenovacaoTicket dados) {
         TicketEstacionamento ticket = ticketRepository.findById(idTicket)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Ticket não encontrado!"));
 
@@ -140,7 +151,11 @@ public class TicketEstacionamentoService {
             throw new ValidacaoException("Ticket vencido não pode ser renovado!");
         }
 
-        ticket.setVenceEm(venceEm.plusMinutes(ticket.getZona().getTempoMaximo()));
+        long minutos = (dados != null && dados.minutosAdicionais() != null)
+                ? dados.minutosAdicionais()
+                : ticket.getZona().getTempoMaximo();
+
+        ticket.setVenceEm(venceEm.plusMinutes(minutos));
         return new DadosDetalhamentoTicket(ticket);
     }
 
@@ -348,6 +363,23 @@ public class TicketEstacionamentoService {
             t.setFimTicket(null);
             t.setValor(BigDecimal.ZERO);
             t.setAtivo(true);
+        }
+
+        return reservas.size();
+    }
+
+    @Transactional
+    public int expirarReservasAtrasadas() {
+        LocalDateTime limite = LocalDateTime.now(clock).minusMinutes(10);
+
+        List<TicketEstacionamento> reservas = ticketRepository
+                .findByStatusAndAtivoTrueAndInicioTicketLessThanEqual(StatusTicket.RESERVADO, limite);
+
+        for (TicketEstacionamento t : reservas) {
+            t.setStatus(StatusTicket.CANCELADO);
+            t.setAtivo(false);
+            t.setFimTicket(LocalDateTime.now(clock));
+            t.setValor(BigDecimal.ZERO);
         }
 
         return reservas.size();
