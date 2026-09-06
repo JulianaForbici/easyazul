@@ -1,5 +1,5 @@
-<div class="home">
-  <header class="topbar">
+<div class="home" [class.authenticated]="auth.isAuthenticated()">
+  <header class="topbar" *ngIf="!auth.isAuthenticated()">
     <div class="topbar-shell">
       <div class="brand">
         <img class="brand-logo" [src]="logoBlue" alt="EasyAzul" />

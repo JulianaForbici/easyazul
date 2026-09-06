@@ -23,8 +23,9 @@ export class MaskInputDirective {
     if (this.kind === 'cnpj') masked = this.maskCnpj(digits);
     if (this.kind === 'telefone') masked = this.maskTelefone(digits);
 
-    input.value = masked;
-    input.dispatchEvent(new Event('input', { bubbles: true }));
+    if (input.value !== masked) {
+      input.value = masked;
+    }
   }
 
   private maskCpf(d: string): string {
