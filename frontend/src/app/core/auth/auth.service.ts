@@ -47,13 +47,7 @@ export class AuthService {
     this.user = user;
     localStorage.setItem(KEY, JSON.stringify(user));
 
-    const tipo = String(user.tipo ?? '').toUpperCase();
-
-    if (tipo === 'MOTORISTA' || tipo === 'EMPRESA') {
-      this.router.navigateByUrl('/mapa');
-    } else {
-      this.router.navigateByUrl('/admin/usuarios');
-    }
+    this.router.navigateByUrl('/home');
   }
 
   logout(): void {

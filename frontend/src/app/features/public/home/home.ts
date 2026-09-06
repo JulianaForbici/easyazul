@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../core/auth/auth.service';
 
 type Feature = { title: string; desc: string; img: string };
 
@@ -12,6 +13,8 @@ type Feature = { title: string; desc: string; img: string };
   styleUrl: './home.scss',
 })
 export class HomeComponent {
+  constructor(public auth: AuthService) {}
+
   heroVideo = 'assets/videos/car.mp4';
 
   chevrons = Array.from({ length: 14 });
