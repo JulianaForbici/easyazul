@@ -53,9 +53,6 @@ public class TicketEstacionamentoController {
         return ResponseEntity.ok(ticketService.renovar(id));
     }
 
-    public ResponseEntity<DadosDetalhamentoTicket> renovar(Long id) {
-        return renovar(id, null);
-    }
 
     @PostMapping("/{id}/cancelar")
     @Transactional

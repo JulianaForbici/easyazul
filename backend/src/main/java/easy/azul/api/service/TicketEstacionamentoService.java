@@ -127,9 +127,14 @@ public class TicketEstacionamentoService {
 
         return new DadosDetalhamentoTicket(ticket);
     }
-
+    
     @Transactional
     public DadosDetalhamentoTicket renovar(Long idTicket) {
+        return renovar(idTicket, null);
+    }
+
+    @Transactional
+    public DadosDetalhamentoTicket renovar(Long idTicket, DadosRenovacaoTicket dados) {
         TicketEstacionamento ticket = ticketRepository.findById(idTicket)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Ticket não encontrado!"));
 
@@ -146,7 +151,11 @@ public class TicketEstacionamentoService {
             throw new ValidacaoException("Ticket vencido não pode ser renovado!");
         }
 
-        ticket.setVenceEm(venceEm.plusMinutes(ticket.getZona().getTempoMaximo()));
+        long minutos = (dados != null && dados.minutosAdicionais() != null)
+                ? dados.minutosAdicionais()
+                : ticket.getZona().getTempoMaximo();
+
+        ticket.setVenceEm(venceEm.plusMinutes(minutos));
         return new DadosDetalhamentoTicket(ticket);
     }
 
@@ -374,41 +383,6 @@ public class TicketEstacionamentoService {
         }
 
         return reservas.size();
-    }
-
-    @Transactional
-    public DadosDetalhamentoTicket renovar(Long id, DadosRenovacaoTicket dados) {
-        TicketEstacionamento ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new ValidacaoException("Ticket não encontrado com o ID: " + id));
-
-        if (Boolean.FALSE.equals(ticket.getAtivo())) {
-            throw new ValidacaoException("Apenas tickets ativos podem ser renovados.");
-        }
-
-        LocalDateTime agora = LocalDateTime.now(clock);
-
-        // Se já tiver uma data fim e ela já passou, não permite renovar
-        if (ticket.getFimTicket() != null && ticket.getFimTicket().isBefore(agora)) {
-            throw new ValidacaoException("Este ticket já expirou e não pode ser renovado.");
-        }
-
-        // Define 30 minutos se o corpo ou os minutos vierem nulos/vazios
-        long minutos = (dados != null && dados.minutosAdicionais() != null)
-                ? dados.minutosAdicionais()
-                : 30;
-
-        // Se fimTicket for nulo, soma a partir de agora; se já existir, estende a partir do fim atual
-        LocalDateTime baseCalculo = ticket.getFimTicket() != null ? ticket.getFimTicket() : agora;
-        ticket.setFimTicket(baseCalculo.plusMinutes(minutos));
-
-        ticketRepository.save(ticket);
-
-        return new DadosDetalhamentoTicket(ticket);
-    }
-
-    @Transactional
-    public DadosDetalhamentoTicket renovar(Long id) {
-        return renovar(id, null);
     }
 
     private void validarFechadoSemPagamento(Veiculo veiculo) {
