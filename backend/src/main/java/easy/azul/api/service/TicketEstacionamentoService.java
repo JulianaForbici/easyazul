@@ -406,6 +406,11 @@ public class TicketEstacionamentoService {
         return new DadosDetalhamentoTicket(ticket);
     }
 
+    @Transactional
+    public DadosDetalhamentoTicket renovar(Long id) {
+        return renovar(id, null);
+    }
+
     private void validarFechadoSemPagamento(Veiculo veiculo) {
 
         var ultimoFechadoOpt =
