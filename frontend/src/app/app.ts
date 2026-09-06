@@ -5,11 +5,12 @@ import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './core/layout/header/header';
 import { FooterComponent } from './core/layout/footer/footer';
+import { TicketExpiryAlertComponent } from './shared/tickets/ticket-expiry-alert/ticket-expiry-alert';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, HeaderComponent, FooterComponent],
+  imports: [CommonModule, RouterOutlet, HeaderComponent, FooterComponent, TicketExpiryAlertComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

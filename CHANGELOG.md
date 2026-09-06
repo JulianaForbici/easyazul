@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.5.0 - 2026-09-05
+
+- Merge pull request #7 from JulianaForbici/bugfix/retirado-cpf-opcional-cadastro
+- fix: retirado opcional do cpf ao cadastrar
+
+
 ## v1.4.0 - 2026-09-04
 
 - Merge pull request #5 from JulianaForbici/feature/contador-ticket

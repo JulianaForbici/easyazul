@@ -1,0 +1,116 @@
+:host {
+  display: contents;
+}
+
+.ticket-alerts {
+  position: fixed;
+  top: 84px;
+  right: 18px;
+  z-index: 9999;
+
+  width: min(390px, calc(100vw - 36px));
+
+  display: grid;
+  gap: 10px;
+
+  pointer-events: none;
+}
+
+.ticket-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  padding: 14px;
+
+  border-radius: 16px;
+  border: 1px solid rgba(241, 196, 15, 0.35);
+
+  background: rgba(35, 31, 12, 0.94);
+
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+
+  pointer-events: auto;
+
+  animation: entradaAviso 0.2s ease;
+}
+
+.ticket-alert.critico {
+  border-color: rgba(231, 76, 60, 0.45);
+  background: rgba(45, 15, 18, 0.94);
+}
+
+.alert-icon {
+  color: #f1c40f;
+  font-size: 24px;
+  margin-top: 2px;
+}
+
+.ticket-alert.critico .alert-icon {
+  color: #ff8f8f;
+}
+
+.alert-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-title {
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.alert-text {
+  margin-top: 4px;
+
+  font-size: 13px;
+  line-height: 1.4;
+
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.alert-link {
+  display: inline-block;
+  margin-top: 8px;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  color: var(--c5);
+}
+
+.alert-close {
+  border: 0;
+  padding: 4px;
+
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+
+  cursor: pointer;
+}
+
+.alert-close:hover {
+  color: #fff;
+}
+
+@keyframes entradaAviso {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .ticket-alerts {
+    top: 78px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+}
