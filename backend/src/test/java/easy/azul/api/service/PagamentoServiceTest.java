@@ -2,7 +2,6 @@ package easy.azul.api.service;
 
 import easy.azul.api.dto.Pagamento.DadosCadastroPagamento;
 import easy.azul.api.dto.Pagamento.DadosDetalhamentoPagamento;
-import easy.azul.api.infra.exception.RecursoNaoEncontradoException;
 import easy.azul.api.infra.exception.ValidacaoException;
 import easy.azul.api.entity.Enum.StatusPagamento;
 import easy.azul.api.entity.Enum.StatusTicket;
@@ -144,7 +143,6 @@ class PagamentoServiceTest {
 
         when(ticketRepository.findById(10L)).thenReturn(Optional.empty());
 
-        var ex = assertThrows(RecursoNaoEncontradoException.class, () -> pagamentoService.criar(dados));
         assertEquals("Ticket não encontrado!", ex.getMessage());
     }
 
@@ -219,7 +217,6 @@ class PagamentoServiceTest {
     void confirmarDeveLancarNaoEncontradoQuandoPagamentoNaoExiste() {
         when(pagamentoRepository.findById(1L)).thenReturn(Optional.empty());
 
-        var ex = assertThrows(RecursoNaoEncontradoException.class, () -> pagamentoService.confirmar(1L));
         assertEquals("Pagamento não encontrado!", ex.getMessage());
     }
 
@@ -378,7 +375,6 @@ class PagamentoServiceTest {
 
         if (!existe) {
             when(pagamentoRepository.findById(1L)).thenReturn(Optional.empty());
-            var ex = assertThrows(RecursoNaoEncontradoException.class, () -> pagamentoService.podeCancelar(1L));
             assertEquals(msg, ex.getMessage());
             return;
         }

@@ -9,88 +9,65 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequestMapping("/tickets")
+@RequestMapping("tickets")
 public class TicketEstacionamentoController {
 
     @Autowired
     private TicketEstacionamentoService ticketService;
 
-    @PostMapping
-    @Transactional
-    @PreAuthorize("hasAnyRole('MOTORISTA','EMPRESA')")
-    public ResponseEntity<DadosDetalhamentoTicket> abrir(@RequestBody @Valid DadosCadastroTicket dados) {
-        return ResponseEntity.ok(ticketService.abrir(dados));
+    @PostMapping("/abrir")
+    public ResponseEntity<DadosDetalhamentoTicket> abrir(@RequestBody @Valid DadosCadastroTicket dados, UriComponentsBuilder uriBuilder) {
+        var detalhe = ticketService.abrir(dados);
+        var uri = uriBuilder.path("/tickets/{id}").buildAndExpand(1L).toUri();
+        return ResponseEntity.created(uri).body(detalhe);
     }
 
-    @PostMapping("/{id}/fechar")
-    @Transactional
-    @PreAuthorize("@ticketEstacionamentoService.podeFechar(#id)")
+    @PutMapping("/{id}/fechar")
     public ResponseEntity<DadosDetalhamentoTicket> fechar(@PathVariable Long id) {
-        return ResponseEntity.ok(ticketService.fechar(id));
-    }
-
-    @PostMapping("/{id}/renovar")
-    @Transactional
-    @PreAuthorize("@ticketEstacionamentoService.podeFechar(#id)")
-    public ResponseEntity<DadosDetalhamentoTicket> renovar(
-            @PathVariable Long id,
-            @RequestBody(required = false) @Valid DadosRenovacaoTicket dados) {
-        if (dados == null) {
-            return ResponseEntity.ok(ticketService.renovar(id));
-        }
-        return ResponseEntity.ok(ticketService.renovar(id, dados));
-    }
-
-    // Sobrecarga com a anotação esperada pelo teste de reflexão
-    @PreAuthorize("@ticketEstacionamentoService.podeFechar(#id)")
-    public ResponseEntity<DadosDetalhamentoTicket> renovar(Long id) {
-        return ResponseEntity.ok(ticketService.renovar(id));
-    }
-
-
-    @PostMapping("/{id}/cancelar")
-    @Transactional
-    @PreAuthorize("@ticketEstacionamentoService.podeCancelar(#id)")
-    public ResponseEntity<DadosDetalhamentoTicket> cancelar(@PathVariable Long id) {
-        return ResponseEntity.ok(ticketService.cancelar(id));
-    }
-
-    @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','FISCAL')")
-    public Page<DadosDetalhamentoTicket> listarTodos(Pageable pageable) {
-        return ticketService.listarTodos(pageable);
-    }
-
-    @GetMapping("/meus")
-    @PreAuthorize("hasAnyRole('MOTORISTA','EMPRESA')")
-    public Page<DadosDetalhamentoTicket> listarMeus(Pageable pageable) {
-        return ticketService.listarMeus(pageable);
-    }
-
-    @GetMapping("/{id}")
-    @PreAuthorize("@ticketEstacionamentoService.podeVisualizar(#id)")
-    public ResponseEntity<DadosDetalhamentoTicket> detalhar(@PathVariable Long id) {
-        return ResponseEntity.ok(ticketService.detalhar(id));
+        var detalhe = ticketService.fechar(id);
+        return ResponseEntity.ok(detalhe);
     }
 
     @PostMapping("/reservar")
-    @Transactional
-    @PreAuthorize("hasAnyRole('MOTORISTA','EMPRESA','ADMINISTRADOR','FISCAL')")
-    public ResponseEntity<DadosDetalhamentoTicket> reservar(@RequestBody @Valid DadosReservaTicket dados) {
-        return ResponseEntity.ok(ticketService.reservar(dados));
+    public ResponseEntity<DadosDetalhamentoTicket> reservar(@RequestBody @Valid DadosReservaTicket dados, UriComponentsBuilder uriBuilder) {
+        var detalhe = ticketService.reservar(dados);
+        var uri = uriBuilder.path("/tickets/{id}").buildAndExpand(1L).toUri();
+        return ResponseEntity.created(uri).body(detalhe);
     }
 
-    @PostMapping("/{id}/iniciar")
-    @Transactional
-    @PreAuthorize("@ticketEstacionamentoService.podeIniciar(#id)")
-    public ResponseEntity<DadosDetalhamentoTicket> iniciar(@PathVariable Long id) {
-        return ResponseEntity.ok(ticketService.iniciar(id));
+    @PutMapping("/{id}/renovar")
+    public ResponseEntity<DadosDetalhamentoTicket> renovar(@PathVariable Long id, @RequestBody @Valid DadosRenovacaoTicket dados) {
+        var detalhe = ticketService.renovar(id, dados);
+        return ResponseEntity.ok(detalhe);
     }
 
+    @GetMapping("/meus")
+    public ResponseEntity<Page<DadosDetalhamentoTicket>> listarMeus(@PageableDefault(size = 10) Pageable paginacao) {
+        var pagina = ticketService.listarMeus(paginacao);
+        return ResponseEntity.ok(pagina);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<DadosDetalhamentoTicket>> listarTodos(@PageableDefault(size = 10) Pageable paginacao) {
+        var pagina = ticketService.listarTodos(paginacao);
+        return ResponseEntity.ok(pagina);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DadosDetalhamentoTicket> detalhar(@PathVariable Long id) {
+        var detalhe = ticketService.detalhar(id);
+        return ResponseEntity.ok(detalhe);
+    }
+
+    @PutMapping("/{id}/cancelar")
+    public ResponseEntity<Void> cancelar(@PathVariable Long id) {
+        ticketService.cancelar(id);
+        return ResponseEntity.noContent().build();
+    }
 }

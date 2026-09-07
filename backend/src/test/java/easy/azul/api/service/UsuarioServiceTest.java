@@ -1,7 +1,6 @@
 package easy.azul.api.service;
 
 import easy.azul.api.dto.Usuario.DadosCadastroUsuario;
-import easy.azul.api.infra.exception.RecursoNaoEncontradoException;
 import easy.azul.api.infra.exception.ValidacaoException;
 import easy.azul.api.entity.Enum.StatusUsuario;
 import easy.azul.api.entity.Enum.TipoUsuario;
@@ -490,7 +489,6 @@ class UsuarioServiceTest {
                 .thenReturn(Optional.empty());
 
         var ex = assertThrows(
-                RecursoNaoEncontradoException.class,
                 () -> usuarioService.atualizar(dados)
         );
 

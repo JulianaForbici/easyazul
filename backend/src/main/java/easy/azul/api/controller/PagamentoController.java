@@ -1,7 +1,6 @@
 package easy.azul.api.controller;
 
 import easy.azul.api.dto.Pagamento.DadosCadastroPagamento;
-import easy.azul.api.dto.Pagamento.DadosCancelamentoPagamento;
 import easy.azul.api.dto.Pagamento.DadosDetalhamentoPagamento;
 import easy.azul.api.service.PagamentoService;
 import jakarta.validation.Valid;
@@ -10,57 +9,57 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+import java.util.List;
 
 @RestController
-@RequestMapping("/pagamentos")
+@RequestMapping("pagamentos")
 public class PagamentoController {
 
     @Autowired
     private PagamentoService pagamentoService;
 
     @PostMapping
-    @Transactional
-    @PreAuthorize("hasAnyRole('MOTORISTA','EMPRESA')")
-    public ResponseEntity<DadosDetalhamentoPagamento> criar(
-            @RequestBody @Valid DadosCadastroPagamento dados
-    ) {
-        return ResponseEntity.ok(pagamentoService.criar(dados));
+    public ResponseEntity<DadosDetalhamentoPagamento> registrar(@RequestBody @Valid DadosCadastroPagamento dados, UriComponentsBuilder uriBuilder) {
+        var detalhe = pagamentoService.registrarPagamento(dados);
+        var uri = uriBuilder.path("/pagamentos/{id}").buildAndExpand(1L).toUri();
+        return ResponseEntity.created(uri).body(detalhe);
     }
 
-    @PostMapping("/{id}/confirmar")
-    @Transactional
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','FISCAL')")
-    public ResponseEntity<DadosDetalhamentoPagamento> confirmar(@PathVariable Long id) {
-        return ResponseEntity.ok(pagamentoService.confirmar(id));
+    @PutMapping("/{id}/confirmar")
+    public ResponseEntity<Void> confirmar(@PathVariable Long id) {
+        pagamentoService.confirmarPagamento(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/meus")
-    @PreAuthorize("hasAnyRole('MOTORISTA','EMPRESA')")
-    public ResponseEntity<Page<DadosDetalhamentoPagamento>> listarMeus(
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
-        return ResponseEntity.ok(pagamentoService.listarMeus(pageable));
+    public ResponseEntity<Page<DadosDetalhamentoPagamento>> listarMeus(@PageableDefault(size = 10) Pageable paginacao) {
+        var pagina = pagamentoService.listarMeus(paginacao);
+        return ResponseEntity.ok(pagina);
     }
 
-    @PostMapping("/{id}/cancelar")
-    @Transactional
-    @PreAuthorize("@pagamentoService.podeCancelar(#id)")
-    public ResponseEntity<DadosDetalhamentoPagamento> cancelar(
-            @PathVariable Long id,
-            @RequestBody @Valid DadosCancelamentoPagamento dados
-    ) {
-        return ResponseEntity.ok(pagamentoService.cancelar(id, dados.motivo()));
+    @GetMapping("/usuario/{id}")
+    public ResponseEntity<Page<DadosDetalhamentoPagamento>> listarPorUsuario(@PathVariable Long id, @PageableDefault(size = 10) Pageable paginacao) {
+        var pagina = pagamentoService.listar(id, paginacao);
+        return ResponseEntity.ok(pagina);
+    }
+
+    @PutMapping("/{id}/cancelar")
+    public ResponseEntity<Void> cancelar(@PathVariable Long id, @RequestBody String motivo) {
+        pagamentoService.cancelar(id, motivo);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','FISCAL')")
-    public Page<DadosDetalhamentoPagamento> listar(
-            @RequestParam(required = false) Long ticketId,
-            @PageableDefault(size = 10) Pageable paginacao
-    ) {
-        return pagamentoService.listar(ticketId, paginacao);
+    public ResponseEntity<List<DadosDetalhamentoPagamento>> listarTodos() {
+        var lista = pagamentoService.listarTodos();
+        return ResponseEntity.ok(lista);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DadosDetalhamentoPagamento> buscarPorId(@PathVariable Long id) {
+        var detalhe = pagamentoService.buscarPorId(id);
+        return ResponseEntity.ok(detalhe);
     }
 }

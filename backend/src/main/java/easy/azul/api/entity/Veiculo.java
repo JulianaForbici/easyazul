@@ -1,32 +1,67 @@
 package easy.azul.api.entity;
 
-import easy.azul.api.entity.Enum.StatusVeiculo;
-import easy.azul.api.entity.Enum.TipoVeiculo;
 import jakarta.persistence.*;
 import lombok.*;
+import easy.azul.api.entity.Enum.TipoVeiculo;
+import easy.azul.api.entity.Enum.StatusVeiculo;
 
-@Table(name = "veiculo")
-@Entity(name = "Veiculo")
+@Entity
+@Table(name = "veiculos")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
 public class Veiculo {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario", nullable = false)
-    private Usuario dono;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String placa;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario dono;
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_veiculo", nullable = false, length = 20)
     private TipoVeiculo tipoVeiculo;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
-    private StatusVeiculo status = StatusVeiculo.ATIVO;
+    private StatusVeiculo status;
+
+    public java.lang.Long getId() {
+        return this.id;
+    }
+
+    public java.lang.String getPlaca() {
+        return this.placa;
+    }
+
+    public Usuario getDono() {
+        return this.dono;
+    }
+
+    public TipoVeiculo getTipoVeiculo() {
+        return this.tipoVeiculo;
+    }
+
+    public StatusVeiculo getStatus() {
+        return this.status;
+    }
+
+    public void setPlaca(java.lang.String placa) {
+        this.placa = placa;
+    }
+
+    public void setDono(Usuario dono) {
+        this.dono = dono;
+    }
+
+    public void setTipoVeiculo(TipoVeiculo tipoVeiculo) {
+        this.tipoVeiculo = tipoVeiculo;
+    }
+
+    public void setStatus(StatusVeiculo status) {
+        this.status = status;
+    }
 }

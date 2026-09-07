@@ -1,4 +1,5 @@
 package easy.azul.api.dto.Veiculo;
+import easy.azul.api.entity.Veiculo;
 
 import easy.azul.api.entity.Enum.StatusVeiculo;
 import easy.azul.api.entity.Enum.TipoVeiculo;
