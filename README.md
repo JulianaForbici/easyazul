@@ -1,18 +1,16 @@
 # 💙 EasyAzul
 
-O **EasyAzul** é uma aplicação web desenvolvida para facilitar o uso e o gerenciamento do estacionamento rotativo da Área Azul.
+O **EasyAzul** é uma aplicação web desenvolvida para facilitar o gerenciamento de vagas da Área Azul, centralizando informações sobre usuários, veículos, zonas de estacionamento, tickets, reservas e pagamentos.
 
-A plataforma centraliza o controle de **usuários, veículos, zonas de estacionamento, reservas, tickets e pagamentos**, oferecendo diferentes funcionalidades de acordo com o perfil de acesso do usuário.
+O projeto conta com **backend em Java com Spring Boot**, **frontend em Angular** e **banco de dados PostgreSQL**, oferecendo autenticação com JWT, controle de acesso por perfil, integração com mapas e funcionalidades específicas para motoristas, fiscais e administradores.
 
-O projeto foi desenvolvido utilizando **Angular** no frontend, **Java com Spring Boot** no backend e **PostgreSQL** como banco de dados. A comunicação entre frontend e backend ocorre por meio de uma **API REST**, com autenticação baseada em **JWT** e controle de acesso utilizando **Spring Security**.
-
-Além das funcionalidades da aplicação, o projeto utiliza **Docker**, **GitHub Actions**, testes automatizados, Pull Requests e versionamento automático para auxiliar no desenvolvimento e na qualidade do código.
+A aplicação também possui suporte a **Docker**, permitindo executar frontend, backend e banco de dados de forma integrada, além de utilizar **GitHub Actions**, testes automatizados, Pull Requests, proteção da branch principal e versionamento automático.
 
 ---
 
-## 🎥 Demonstração do MVP
+# 🎥 Demonstração do MVP
 
-Confira uma demonstração do EasyAzul em funcionamento:
+Confira abaixo uma demonstração do EasyAzul em funcionamento, apresentando as principais telas e funcionalidades implementadas no projeto.
 
 https://github.com/user-attachments/assets/b2a7f083-7915-46f6-88bd-683b21e2a59e
 
@@ -22,118 +20,121 @@ https://github.com/user-attachments/assets/b2a7f083-7915-46f6-88bd-683b21e2a59e
 
 ### 👤 Usuários e autenticação
 
-- Cadastro e autenticação de usuários
-- Login utilizando JWT
-- Controle de acesso baseado em perfil
-- Perfis de Motorista, Fiscal e Administrador
-- Validação de dados durante o cadastro
+* Cadastro e autenticação de usuários
+* Login com geração de token JWT
+* Controle de acesso por perfil
+* Perfis de motorista, fiscal e administrador
+* Validações específicas durante o cadastro
+* Navegação adaptada conforme o usuário autenticado
 
 ### 🚗 Veículos
 
-- Cadastro e gerenciamento de veículos
-- Consulta dos veículos vinculados ao usuário
-- Identificação automática do veículo utilizado recentemente
-- Seleção do veículo durante o processo de estacionamento
+* Cadastro e gerenciamento de veículos
+* Consulta de veículos vinculados ao usuário
+* Identificação automática do veículo utilizado recentemente
+* Seleção de veículo durante o processo de estacionamento
 
 ### 🗺️ Zonas de estacionamento
 
-- Visualização das zonas através de mapa
-- Integração utilizando OpenStreetMap
-- Consulta das informações da zona
-- Controle de capacidade e disponibilidade de vagas
+* Visualização de zonas no mapa
+* Integração com OpenStreetMap
+* Consulta das informações da zona
+* Controle de vagas e disponibilidade
+* Visualização das áreas disponíveis para estacionamento
 
 ### 🎫 Tickets e reservas
 
-- Criação de tickets de estacionamento
-- Reserva de estacionamento
-- Acompanhamento do status do ticket
-- Cancelamento e encerramento de tickets
-- Renovação do estacionamento em **+30 minutos** ou **+1 hora**
-- Contador de tempo restante do ticket
-- Barra de progresso para acompanhamento do período utilizado
-- Alertas quando o ticket estiver próximo do vencimento
+* Criação e acompanhamento de tickets
+* Reserva de estacionamento
+* Controle do status dos tickets
+* Cancelamento e encerramento de tickets
+* Renovação do estacionamento em **+30 minutos** ou **+1 hora**
+* Contador de tempo restante
+* Barra de progresso do ticket ativo
+* Alertas quando o ticket estiver próximo do vencimento
+* Avisos de atenção e estado crítico conforme o tempo restante
 
 ### 💳 Pagamentos
 
-- Consulta de pagamentos
-- Gerenciamento dos pagamentos vinculados aos tickets
-- Controle de status das operações
+* Consulta de pagamentos
+* Gerenciamento dos pagamentos vinculados aos tickets
+* Controle do status das operações
 
-### 🛡️ Administração e fiscalização
+### 🛡️ Área administrativa
 
-- Gerenciamento de usuários
-- Consulta de veículos
-- Gerenciamento de tickets
-- Consulta de pagamentos
-- Funcionalidades específicas de acordo com o perfil autenticado
-
----
-
-## 🏗️ Arquitetura
-
-O EasyAzul utiliza uma arquitetura separada entre frontend, backend e banco de dados.
-
-```mermaid
-flowchart TD
-    U[👤 Usuário]
-    F[Angular<br/>Frontend]
-    B[Spring Boot<br/>Backend REST]
-    DB[(PostgreSQL)]
-
-    U --> F
-    F -->|HTTP / JSON| B
-    B --> DB
-```
-
-O **Angular** é responsável pela interface e interação com o usuário.
-
-O **Spring Boot** concentra as regras de negócio, autenticação, autorização e comunicação com o banco de dados.
-
-O **PostgreSQL** realiza a persistência das informações da aplicação.
+* Gerenciamento de usuários
+* Consulta de veículos
+* Gerenciamento de tickets
+* Consulta e acompanhamento de pagamentos
+* Funcionalidades específicas conforme o perfil de acesso
 
 ---
 
 ## 🛠️ Tecnologias utilizadas
 
-### Frontend
-
-- Angular
-- TypeScript
-- HTML
-- SCSS
-
 ### Backend
 
-- Java 17
-- Spring Boot
-- Spring Security
-- JWT
-- Spring Data JPA
-- Hibernate
-- Flyway
-- Maven
-- API REST
+* Java 17
+* Spring Boot
+* Spring Security
+* JWT
+* Spring Data JPA
+* Hibernate
+* Flyway
+* Maven
+* API REST
+
+### Frontend
+
+* Angular
+* TypeScript
+* HTML
+* SCSS
 
 ### Banco de dados
 
-- PostgreSQL 16
+* PostgreSQL 16
 
 ### Testes
 
-- JUnit
-- Mockito
-- Angular Tests
+* JUnit
+* Mockito
+* Angular Tests
 
-### Infraestrutura e desenvolvimento
+### Infraestrutura e ferramentas
 
-- Docker
-- Docker Compose
-- Git
-- GitHub
-- GitHub Actions
-- IntelliJ IDEA
-- DBeaver
-- Postman / Insomnia
+* Docker
+* Docker Compose
+* Git
+* GitHub
+* GitHub Actions
+* IntelliJ IDEA
+* DBeaver
+* Postman / Insomnia
+
+---
+
+## 🏗️ Arquitetura do projeto
+
+O EasyAzul utiliza uma arquitetura separada entre frontend, backend e banco de dados.
+
+```text
+Usuário
+   ↓
+Angular
+Frontend
+   ↓ HTTP / JSON
+Spring Boot
+Backend REST
+   ↓
+PostgreSQL
+```
+
+O **frontend Angular** é responsável pela interface e interação com o usuário.
+
+O **backend Spring Boot** concentra as regras de negócio, autenticação, autorização e comunicação com o banco de dados.
+
+O **PostgreSQL** é responsável pela persistência das informações da aplicação.
 
 ---
 
@@ -169,121 +170,28 @@ easyazul/
 
 ---
 
-## 🔄 Integração contínua
-
-O projeto utiliza **GitHub Actions** para executar automaticamente validações do frontend e backend durante o desenvolvimento.
-
-O workflow de CI é executado em pushes e Pull Requests para as branches `develop` e `main`.
-
-### Frontend
-
-O processo realiza:
-
-```text
-Instalação das dependências
-        ↓
-Build da aplicação Angular
-        ↓
-Execução dos testes
-```
-
-### Backend
-
-O processo realiza:
-
-```text
-Inicialização do PostgreSQL
-        ↓
-Configuração do Java 17
-        ↓
-Execução dos testes Maven
-```
-
-Para que uma alteração seja integrada à branch principal, os checks configurados devem ser concluídos com sucesso.
-
----
-
-## 🔐 Proteção da branch principal
-
-A branch `main` possui regras de proteção para aumentar a segurança do processo de desenvolvimento.
-
-As alterações são realizadas por meio de **Pull Requests**, permitindo revisão do código antes da integração.
-
-O fluxo utilizado é semelhante a:
-
-```text
-Branch de desenvolvimento
-        ↓
-Pull Request
-        ↓
-Code Review
-        ↓
-Frontend - Build and Tests ✅
-Backend - Build and Tests  ✅
-        ↓
-Merge na main
-```
-
-Essa estratégia reduz a possibilidade de código não validado ser incorporado diretamente à versão principal da aplicação.
-
----
-
-## 🏷️ Versionamento automático
-
-O projeto possui um workflow responsável pela criação automática de versões.
-
-O versionamento segue o formato:
-
-```text
-vMAJOR.MINOR.PATCH
-```
-
-Exemplo:
-
-```text
-v1.5.0
-```
-
-O processo automatizado realiza o cálculo da próxima versão, criação de tags Git e atualização do `CHANGELOG.md`, permitindo acompanhar a evolução do projeto ao longo do desenvolvimento.
-
----
-
-## 📝 Changelog
-
-O histórico das versões e principais alterações do projeto pode ser consultado no arquivo:
-
-```text
-CHANGELOG.md
-```
-
-O arquivo é atualizado pelo processo de versionamento automático.
-
----
-
-# 🐳 Executando com Docker
-
-A forma recomendada para executar o EasyAzul localmente é utilizando **Docker Compose**.
-
-Dessa maneira, não é necessário instalar manualmente Java, Maven, Node.js, Angular CLI ou PostgreSQL.
+# 🐳 Como executar o projeto com Docker
 
 ## Pré-requisitos
 
-Instale:
+Para executar o EasyAzul utilizando Docker, é necessário ter instalado:
 
-- [Docker Desktop](https://docs.docker.com/desktop/setup/install/windows-install/)
-- [Git](https://git-scm.com/downloads)
+* [Docker Desktop](https://docs.docker.com/desktop/setup/install/windows-install/)
+* [Git](https://git-scm.com/downloads)
 
-Ferramentas como IntelliJ IDEA e DBeaver são opcionais.
+> Não é necessário instalar Java, Maven, Node.js, Angular CLI ou PostgreSQL separadamente para executar o projeto via Docker.
+
+Ferramentas como IntelliJ IDEA e DBeaver são opcionais e podem ser utilizadas para desenvolvimento e acesso ao banco de dados.
 
 ---
 
-## 1. Clonar o repositório
+## 1️⃣ Clonar o projeto
 
 ```bash
 git clone https://github.com/JulianaForbici/easyazul.git
 ```
 
-Acesse o diretório:
+Acesse a pasta do projeto:
 
 ```bash
 cd easyazul
@@ -291,44 +199,29 @@ cd easyazul
 
 ---
 
-## 2. Iniciar o Docker Desktop
+## 2️⃣ Iniciar o Docker Desktop
 
-Certifique-se de que o **Docker Desktop** está aberto e que o Docker Engine está em execução.
+Antes de executar o projeto, certifique-se de que o Docker Desktop está aberto e que o Docker Engine foi iniciado.
 
 ---
 
-## 3. Subir a aplicação
+## 3️⃣ Subir a aplicação
 
-Na raiz do projeto:
+Na raiz do projeto, execute:
 
 ```bash
 docker compose up --build
 ```
 
-Na primeira execução, o processo pode levar alguns minutos devido ao download e à configuração das dependências.
+Na primeira execução, o processo pode levar alguns minutos, pois as imagens e dependências serão baixadas e configuradas.
 
-O Docker Compose iniciará:
+O Docker Compose iniciará três serviços:
 
-```text
-easyazul-frontend
-easyazul-backend
-easyazul-db
-```
+* **easyazul-frontend** — aplicação Angular
+* **easyazul-backend** — API Spring Boot
+* **easyazul-db** — banco PostgreSQL
 
----
-
-## 4. Acessar a aplicação
-
-Após a inicialização:
-
-| Serviço | Endereço |
-|---|---|
-| 🌐 Frontend | http://localhost:4200 |
-| ⚙️ Backend | http://localhost:8081 |
-| 📚 Swagger | http://localhost:8081/swagger-ui/index.html |
-| 🗄️ PostgreSQL | localhost:5433 |
-
-Nas próximas execuções, caso nenhuma imagem precise ser reconstruída:
+Nas próximas execuções, caso não existam alterações que exijam uma nova build:
 
 ```bash
 docker compose up
@@ -336,13 +229,22 @@ docker compose up
 
 ---
 
+## 4️⃣ Acessar a aplicação
+
+Após a inicialização dos containers:
+
+* 🌐 **Frontend:** http://localhost:4200
+* ⚙️ **Backend:** http://localhost:8081
+* 📚 **Swagger:** http://localhost:8081/swagger-ui/index.html
+* 🗄️ **PostgreSQL:** localhost:5433
+
+---
+
 # 🗄️ Banco de dados
 
-O PostgreSQL é criado automaticamente pelo Docker Compose.
+O PostgreSQL é criado e configurado automaticamente pelo Docker Compose.
 
-### Conexão externa
-
-Para acessar utilizando DBeaver ou outra ferramenta:
+Para conexão externa, por exemplo utilizando o DBeaver:
 
 ```text
 Host: localhost
@@ -352,15 +254,15 @@ Usuário: postgres
 Senha: postgres
 ```
 
-Dentro da rede Docker, o backend utiliza:
+Dentro da rede Docker, o backend acessa o banco através de:
 
 ```text
 db:5432
 ```
 
-Os dados são armazenados em um volume Docker e permanecem disponíveis mesmo após a interrupção dos containers.
+Os dados do PostgreSQL são mantidos em um volume Docker e não são apagados ao simplesmente parar os containers.
 
-### Acessar pelo terminal
+### Acessar o banco pelo terminal
 
 ```bash
 docker exec -it easyazul-db psql -U postgres -d easyazul
@@ -368,7 +270,7 @@ docker exec -it easyazul-db psql -U postgres -d easyazul
 
 ---
 
-# ⏹️ Parando a aplicação
+# ⏹️ Parar a aplicação
 
 Para interromper a execução no terminal:
 
@@ -382,25 +284,25 @@ Para remover os containers:
 docker compose down
 ```
 
-Os dados do PostgreSQL serão preservados.
+Os dados do banco continuarão preservados.
 
-Para remover também o volume e recriar completamente o banco:
+Caso seja necessário remover também o volume do PostgreSQL:
 
 ```bash
 docker compose down -v
 ```
 
-> ⚠️ **Atenção:** este comando remove os dados armazenados no banco PostgreSQL do ambiente Docker.
+> ⚠️ **Atenção:** este comando remove os dados armazenados no banco de dados.
 
 ---
 
-# 🔐 Autenticação e autorização
+# 🔐 Autenticação
 
 O EasyAzul utiliza autenticação baseada em **JWT**.
 
-Após o login, a API retorna um token utilizado nas requisições seguintes para acessar recursos protegidos.
+Após o login com e-mail e senha, a API retorna um token utilizado nas próximas requisições para acessar rotas protegidas.
 
-O **Spring Security** é utilizado para controlar quais recursos podem ser acessados por cada perfil.
+O **Spring Security** é utilizado para controlar o acesso às funcionalidades de acordo com o perfil do usuário.
 
 ---
 
@@ -408,52 +310,82 @@ O **Spring Security** é utilizado para controlar quais recursos podem ser acess
 
 ### 🚗 Motorista
 
-Pode gerenciar veículos, visualizar zonas, criar e acompanhar tickets, realizar reservas, renovar o estacionamento e consultar pagamentos.
+Pode cadastrar veículos, visualizar zonas, criar e acompanhar tickets, realizar reservas, renovar o estacionamento e consultar pagamentos.
 
 ### 🔎 Fiscal
 
-Possui funcionalidades destinadas à consulta de veículos e tickets para apoiar a fiscalização do estacionamento rotativo.
+Pode consultar informações de veículos e tickets para apoiar a fiscalização do estacionamento rotativo.
 
 ### 🛡️ Administrador
 
-Possui acesso às funcionalidades administrativas para gerenciamento e acompanhamento das informações do sistema.
+Possui acesso às funcionalidades administrativas para gerenciamento de usuários, veículos, tickets e pagamentos.
 
 ---
 
-# 🧪 Testes
+# 🧪 Testes automatizados
 
-O projeto possui testes automatizados tanto no backend quanto no frontend.
+O projeto possui testes automatizados no backend e frontend.
 
-No backend:
+### Backend
+
+Linux/macOS:
 
 ```bash
 cd backend
 ./mvnw test
 ```
 
-No Windows:
+Windows:
 
 ```powershell
 cd backend
 .\mvnw.cmd test
 ```
 
-No frontend:
+### Frontend
 
 ```bash
 cd frontend
 npm test -- --watch=false
 ```
 
-Os testes também são executados automaticamente pelo workflow de CI do GitHub Actions.
+Os testes também são executados automaticamente pelo GitHub Actions durante pushes e Pull Requests.
+
+---
+
+# 🔄 Integração contínua
+
+O EasyAzul utiliza **GitHub Actions** para validar automaticamente alterações realizadas no projeto.
+
+O workflow possui dois processos principais:
+
+### Frontend - Build and Tests
+
+```text
+Instalação das dependências
+        ↓
+Build Angular
+        ↓
+Execução dos testes
+```
+
+### Backend - Build and Tests
+
+```text
+Inicialização do PostgreSQL
+        ↓
+Configuração do Java 17
+        ↓
+Execução dos testes Maven
+```
+
+As validações são executadas durante pushes e Pull Requests nas branches `develop` e `main`.
 
 ---
 
 # 🔀 Fluxo de desenvolvimento
 
-O projeto utiliza Git e GitHub para controle de versão e colaboração.
-
-O desenvolvimento ocorre utilizando branches e Pull Requests:
+O projeto utiliza branches e Pull Requests para organizar o desenvolvimento.
 
 ```text
 feature / bugfix
@@ -465,13 +397,82 @@ Pull Request
       main
 ```
 
-Antes da integração na branch principal, as alterações são submetidas às validações configuradas no repositório.
+A branch `main` possui regras de proteção, evitando alterações diretas sem passar pelo fluxo definido.
+
+Antes do merge, as alterações devem passar pelas validações configuradas no repositório.
+
+```text
+Pull Request
+     ↓
+Code Review
+     ↓
+Frontend CI ✅
+Backend CI  ✅
+     ↓
+Merge na main
+```
+
+---
+
+# 🛡️ Proteção da branch principal
+
+A branch `main` utiliza **Rulesets do GitHub** para aumentar a segurança do processo de desenvolvimento.
+
+A proteção impede alterações diretas na branch principal e exige que o código seja integrado através de Pull Requests, revisão e validações automatizadas.
+
+Isso ajuda a evitar que alterações com erros sejam adicionadas diretamente à versão principal do projeto.
+
+---
+
+# 🏷️ Versionamento automático
+
+O EasyAzul possui um workflow responsável pelo versionamento automático do projeto.
+
+As versões seguem o formato:
+
+```text
+vMAJOR.MINOR.PATCH
+```
+
+Exemplo:
+
+```text
+v1.5.0
+```
+
+O workflow é responsável por:
+
+* Identificar a versão atual
+* Calcular a próxima versão
+* Criar uma nova tag no Git
+* Atualizar o `CHANGELOG.md`
+* Registrar as principais alterações da versão
+
+---
+
+# 📝 Changelog
+
+As alterações realizadas entre as versões do projeto são registradas no arquivo:
+
+```text
+CHANGELOG.md
+```
+
+O changelog permite acompanhar a evolução das funcionalidades, correções e melhorias realizadas durante o desenvolvimento.
+
+---
+
+# 🗺️ Mapas
+
+O EasyAzul utiliza integração com mapas através do **OpenStreetMap**.
+
+A funcionalidade permite visualizar as zonas de estacionamento, consultar informações de disponibilidade e facilitar a escolha de onde estacionar.
 
 ---
 
 # 📌 Status do projeto
 
-🟡 **Em desenvolvimento**
+🟡 **Projeto em desenvolvimento**
 
 O EasyAzul está sendo desenvolvido como parte do **Projeto Integrador do curso de Tecnologia em Análise e Desenvolvimento de Sistemas**, com evolução contínua de funcionalidades e melhorias na experiência dos usuários.
 
@@ -479,13 +480,13 @@ O EasyAzul está sendo desenvolvido como parte do **Projeto Integrador do curso 
 
 # 👥 Equipe
 
-- Anaís Queiroz Goedert
-- Fernando Kenichi Takenouchi
-- Guilherme Duarte da Costa
-- Juliana Cristina Forbici
+* Anaís Queiroz Goedert
+* Fernando Kenichi Takenouchi
+* Guilherme Duarte da Costa
+* Juliana Cristina Forbici
 
 ---
 
 # 📄 Licença
 
-Este projeto foi desenvolvido para fins **acadêmicos, de estudo e portfólio**.
+Este projeto foi desenvolvido para fins acadêmicos, de estudo e portfólio.
