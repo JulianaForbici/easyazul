@@ -50,6 +50,12 @@ type VeiculoTela = {
   status?: string;
 };
 
+type TicketRecente = {
+  idVeiculo?: number;
+  placa?: string;
+  inicioTicket?: string;
+};
+
 @Component({
   selector: 'app-mapa',
   standalone: true,
@@ -80,6 +86,10 @@ export class MapaComponent implements AfterViewInit {
 
   protected veiculoAtualId: number | null = null;
   protected veiculoAtualPlaca: string | null = null;
+  protected veiculoAtualEhRecente = false;
+  protected veiculoRecenteId: number | null = null;
+
+  private veiculoAlteradoManualmente = false;
 
   protected modalVeiculoAberto = false;
   protected carregandoVeiculos = false;
@@ -113,6 +123,16 @@ export class MapaComponent implements AfterViewInit {
     return idUsuario ? `easyazul:veiculoAtualPlaca:${idUsuario}` : 'placaVeiculoAtual';
   }
 
+  private keyVeiculoRecenteId(): string {
+    const idUsuario = this.getIdUsuarioAuth();
+    return idUsuario ? `easyazul:veiculoRecenteId:${idUsuario}` : 'idVeiculoRecente';
+  }
+
+  private keyVeiculoRecentePlaca(): string {
+    const idUsuario = this.getIdUsuarioAuth();
+    return idUsuario ? `easyazul:veiculoRecentePlaca:${idUsuario}` : 'placaVeiculoRecente';
+  }
+
   private getVeiculoAtualIdFromStorage(): number {
     return Number(localStorage.getItem(this.keyVeiculoId()) ?? 0);
   }
@@ -123,6 +143,8 @@ export class MapaComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.syncVeiculoAtualFromStorage();
+    this.syncVeiculoRecenteFromStorage();
+    this.carregarVeiculoRecente();
 
     this.map = L.map('map', {
       zoomControl: true,
@@ -214,7 +236,7 @@ export class MapaComponent implements AfterViewInit {
   public reservarTicket(): void {
     if (!this.zonaSelecionada) return;
 
-    const idVeiculo = this.getVeiculoAtualIdFromStorage();
+    const idVeiculo = this.veiculoAtualId ?? this.getVeiculoAtualIdFromStorage();
 
     if (!idVeiculo) {
       this.reservaPendenteZonaId = this.zonaSelecionada.idZona;
@@ -234,6 +256,12 @@ export class MapaComponent implements AfterViewInit {
 
     this.http.post(`${environment.apiUrl}/tickets/reservar`, payload).subscribe({
       next: () => {
+        const placa =
+          this.veiculoAtualId === idVeiculo
+            ? this.veiculoAtualPlaca
+            : this.veiculos.find((v) => v.id === idVeiculo)?.placa ?? null;
+
+        this.registrarVeiculoRecente(idVeiculo, placa);
         this.abrirModalMsg('Reserva realizada!', 'Sua reserva foi criada com sucesso.', 'ok');
         this.carregarZonas();
       },
@@ -571,6 +599,102 @@ export class MapaComponent implements AfterViewInit {
   }
 
   // ===== veiculo =====
+  private carregarVeiculoRecente(): void {
+    const url = `${environment.apiUrl}/tickets/meus?size=1&sort=inicioTicket,desc`;
+
+    this.http.get<any>(url).subscribe({
+      next: (res) => {
+        // Se o usuário já trocou o veículo enquanto a requisição carregava,
+        // a escolha manual deve prevalecer.
+        if (this.veiculoAlteradoManualmente) return;
+
+        const tickets: TicketRecente[] = Array.isArray(res)
+          ? res
+          : res?.content ?? [];
+
+        const ultimoTicket = tickets[0];
+        const idVeiculo = Number(ultimoTicket?.idVeiculo ?? 0);
+
+        if (!idVeiculo) return;
+
+        const placa = ultimoTicket?.placa
+          ? String(ultimoTicket.placa).trim().toUpperCase()
+          : null;
+
+        this.registrarVeiculoRecente(idVeiculo, placa);
+        this.definirVeiculoAtual(idVeiculo, placa, true);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        // Não bloqueia a tela: mantém o veículo salvo no localStorage como fallback.
+        console.warn('Não foi possível carregar o veículo usado recentemente:', err);
+      },
+    });
+  }
+
+  private registrarVeiculoRecente(
+    idVeiculo: number,
+    placa: string | null
+  ): void {
+    const placaNormalizada = placa?.trim()
+      ? placa.trim().toUpperCase()
+      : null;
+
+    this.veiculoRecenteId = idVeiculo;
+    this.veiculoAtualEhRecente = this.veiculoAtualId === idVeiculo;
+
+    localStorage.setItem(this.keyVeiculoRecenteId(), String(idVeiculo));
+
+    if (placaNormalizada) {
+      localStorage.setItem(this.keyVeiculoRecentePlaca(), placaNormalizada);
+    } else {
+      localStorage.removeItem(this.keyVeiculoRecentePlaca());
+    }
+
+    this.cdr.detectChanges();
+  }
+
+  private syncVeiculoRecenteFromStorage(): void {
+    const id = Number(localStorage.getItem(this.keyVeiculoRecenteId()) ?? 0);
+
+    this.veiculoRecenteId = id || null;
+    this.veiculoAtualEhRecente = !!id && this.veiculoAtualId === id;
+
+    if (this.veiculoAtualEhRecente && !this.veiculoAtualPlaca) {
+      const placa = localStorage.getItem(this.keyVeiculoRecentePlaca());
+      this.veiculoAtualPlaca = placa ? String(placa).toUpperCase() : null;
+    }
+
+    this.cdr.detectChanges();
+  }
+
+  private definirVeiculoAtual(
+    idVeiculo: number,
+    placa: string | null,
+    ehRecente: boolean
+  ): void {
+    const placaNormalizada = placa?.trim()
+      ? placa.trim().toUpperCase()
+      : null;
+
+    this.veiculoAtualId = idVeiculo;
+    this.veiculoAtualPlaca = placaNormalizada;
+    this.veiculoAtualEhRecente = ehRecente;
+
+    localStorage.setItem(this.keyVeiculoId(), String(idVeiculo));
+
+    if (placaNormalizada) {
+      localStorage.setItem(this.keyVeiculoPlaca(), placaNormalizada);
+    } else {
+      localStorage.removeItem(this.keyVeiculoPlaca());
+    }
+  }
+
+  public get veiculoAtualOrigemLabel(): string {
+    if (!this.veiculoAtualId) return 'Veículo';
+    return this.veiculoAtualEhRecente ? 'Usado recentemente' : 'Veículo selecionado';
+  }
+
   public get veiculoAtualLabel(): string {
     if (this.veiculoAtualPlaca?.trim()) return this.veiculoAtualPlaca;
     if (this.veiculoAtualId) return `#${this.veiculoAtualId}`;
@@ -585,7 +709,7 @@ export class MapaComponent implements AfterViewInit {
     this.modalVeiculoAberto = true;
     this.erroVeiculos = null;
 
-    const atual = this.getVeiculoAtualIdFromStorage();
+    const atual = this.veiculoAtualId ?? this.getVeiculoAtualIdFromStorage();
     this.veiculoSelecionadoId = atual || null;
 
     // se ja carregou uma vez, nao refaz request
@@ -651,11 +775,8 @@ export class MapaComponent implements AfterViewInit {
     const v = this.veiculos.find((x) => x.id === this.veiculoSelecionadoId);
     const placa = v?.placa ?? null;
 
-    localStorage.setItem(this.keyVeiculoId(), String(this.veiculoSelecionadoId));
-    if (placa) localStorage.setItem(this.keyVeiculoPlaca(), placa);
-
-    this.veiculoAtualId = this.veiculoSelecionadoId;
-    this.veiculoAtualPlaca = placa;
+    this.veiculoAlteradoManualmente = true;
+    this.definirVeiculoAtual(this.veiculoSelecionadoId, placa, false);
 
     this.fecharModalVeiculo();
 
@@ -689,6 +810,7 @@ export class MapaComponent implements AfterViewInit {
 
     this.veiculoAtualId = id || null;
     this.veiculoAtualPlaca = placa ? String(placa) : null;
+    this.veiculoAtualEhRecente = false;
 
     this.cdr.detectChanges();
   }

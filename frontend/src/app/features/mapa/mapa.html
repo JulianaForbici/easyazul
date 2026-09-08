@@ -118,14 +118,20 @@
   </button>
 
   <button
-    class="dock-btn primary"
+    class="dock-btn primary reserve-btn"
     type="button"
     [disabled]="!zonaSelecionada"
     (click)="reservarTicket()"
     title="Reservar ticket na zona selecionada"
   >
     <span class="material-icons">confirmation_number</span>
-    Reservar
+
+    <span class="reserve-copy">
+      <span>Reservar</span>
+      <small *ngIf="veiculoAtualId">
+        {{ veiculoAtualEhRecente ? 'Recente:' : 'Veículo:' }} {{ veiculoAtualLabel }}
+      </small>
+    </span>
   </button>
 </div>
 
@@ -154,9 +160,15 @@
   </button>
 </div>
 
-<div class="veh-bar glass">
-  <span class="veh-label">Veículo:</span>
-  <span class="veh-value" [class.muted]="!veiculoAtualId">{{ veiculoAtualLabel }}</span>
+<div class="veh-bar glass" [class.recent]="veiculoAtualEhRecente">
+  <span class="material-icons veh-icon">
+    {{ veiculoAtualEhRecente ? 'history' : 'directions_car' }}
+  </span>
+
+  <div class="veh-info">
+    <span class="veh-label">{{ veiculoAtualOrigemLabel }}</span>
+    <span class="veh-value" [class.muted]="!veiculoAtualId">{{ veiculoAtualLabel }}</span>
+  </div>
 
   <button class="btn ghost btn-sm" type="button" (click)="abrirTrocarVeiculo()">
     <span class="material-icons">sync_alt</span>
@@ -193,11 +205,17 @@
               class="vcard"
               *ngFor="let v of veiculos"
               [class.active]="veiculoSelecionadoId === v.id"
+              [class.recent]="veiculoRecenteId === v.id"
               (click)="selecionarVeiculo(v)"
             >
               <div class="v-top">
                 <div class="v-placa">{{ v.placa }}</div>
                 <span class="tag">{{ v.tipoVeiculo }}</span>
+              </div>
+
+              <div class="recent-badge" *ngIf="veiculoRecenteId === v.id">
+                <span class="material-icons">history</span>
+                Usado recentemente
               </div>
             </button>
           </div>
@@ -211,7 +229,12 @@
       <div class="modal-actions">
         <button class="btn ghost" type="button" (click)="fecharModalVeiculo()">Cancelar</button>
         <button class="btn ghost" type="button" (click)="irParaCadastroVeiculo()">Cadastrar veículo</button>
-        <button class="btn primary" type="button" (click)="confirmarVeiculo()" [disabled]="carregandoVeiculos || !veiculoSelecionadoId">
+        <button
+          class="btn primary"
+          type="button"
+          (click)="confirmarVeiculo()"
+          [disabled]="carregandoVeiculos || !veiculoSelecionadoId"
+        >
           Confirmar
         </button>
       </div>
