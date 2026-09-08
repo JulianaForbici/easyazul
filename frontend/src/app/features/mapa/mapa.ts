@@ -115,22 +115,22 @@ export class MapaComponent implements AfterViewInit {
   // ===== storage keys por usuario =====
   private keyVeiculoId(): string {
     const idUsuario = this.getIdUsuarioAuth();
-    return idUsuario ? ⁠ easyazul:veiculoAtualId:${idUsuario} ⁠ : 'idVeiculoAtual';
+    return idUsuario ? `easyazul:veiculoAtualId:${idUsuario}` : 'idVeiculoAtual';
   }
 
   private keyVeiculoPlaca(): string {
     const idUsuario = this.getIdUsuarioAuth();
-    return idUsuario ? ⁠ easyazul:veiculoAtualPlaca:${idUsuario} ⁠ : 'placaVeiculoAtual';
+    return idUsuario ? `easyazul:veiculoAtualPlaca:${idUsuario}` : 'placaVeiculoAtual';
   }
 
   private keyVeiculoRecenteId(): string {
     const idUsuario = this.getIdUsuarioAuth();
-    return idUsuario ? ⁠ easyazul:veiculoRecenteId:${idUsuario} ⁠ : 'idVeiculoRecente';
+    return idUsuario ? `easyazul:veiculoRecenteId:${idUsuario}` : 'idVeiculoRecente';
   }
 
   private keyVeiculoRecentePlaca(): string {
     const idUsuario = this.getIdUsuarioAuth();
-    return idUsuario ? ⁠ easyazul:veiculoRecentePlaca:${idUsuario} ⁠ : 'placaVeiculoRecente';
+    return idUsuario ? `easyazul:veiculoRecentePlaca:${idUsuario}` : 'placaVeiculoRecente';
   }
 
   private getVeiculoAtualIdFromStorage(): number {
@@ -153,7 +153,7 @@ export class MapaComponent implements AfterViewInit {
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '©️ OpenStreetMap contributors',
+      attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
 
     this.cluster = L.markerClusterGroup({
@@ -171,8 +171,8 @@ export class MapaComponent implements AfterViewInit {
             : 'verde';
 
         return L.divIcon({
-          className: ⁠ cluster cluster-${cor} ⁠,
-          html: ⁠ <span>${c.getChildCount()}</span> ⁠,
+          className: `cluster cluster-${cor}`,
+          html: `<span>${c.getChildCount()}</span>`,
           iconSize: L.point(96, 96),
         });
       },
@@ -254,7 +254,7 @@ export class MapaComponent implements AfterViewInit {
       idVeiculo: idVeiculo,
     };
 
-    this.http.post(⁠ ${environment.apiUrl}/tickets/reservar ⁠, payload).subscribe({
+    this.http.post(`${environment.apiUrl}/tickets/reservar`, payload).subscribe({
       next: () => {
         const placa =
           this.veiculoAtualId === idVeiculo
@@ -302,7 +302,7 @@ export class MapaComponent implements AfterViewInit {
     this.erroZonas = null;
     this.cdr.detectChanges();
 
-    this.http.get<any>(⁠ ${environment.apiUrl}/mapa/zonas ⁠).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/mapa/zonas`).subscribe({
       next: (res) => {
         const lista = Array.isArray(res) ? res : res?.content ?? [];
         this.cluster.clearLayers();
@@ -437,8 +437,8 @@ export class MapaComponent implements AfterViewInit {
   }
 
   private popupHtml(z: ZonaNormalizada): string {
-    const destino = ⁠ ${z.latitude},${z.longitude} ⁠;
-    const url = ⁠ https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destino)} ⁠;
+    const destino = `${z.latitude},${z.longitude}`;
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destino)}`;
 
     const label =
       z.vagasDisponiveis <= 0 ? 'Lotado' : this.corDoPin(z) === 'amarelo' ? 'Quase lotado' : 'Disponível';
@@ -545,22 +545,22 @@ export class MapaComponent implements AfterViewInit {
   }
 
   public async abrirRotaNoGoogleMaps(z: ZonaNormalizada): Promise<void> {
-    const destino = ⁠ ${z.latitude},${z.longitude} ⁠;
+    const destino = `${z.latitude},${z.longitude}`;
 
     if (!this.minhaPosicao) await this.capturarMinhaLocalizacaoSilenciosa();
 
     if (!this.minhaPosicao) {
-      const fallback = ⁠ https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destino)} ⁠;
+      const fallback = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destino)}`;
       window.open(fallback, '_blank');
       return;
     }
 
-    const origem = ⁠ ${this.minhaPosicao.lat},${this.minhaPosicao.lng} ⁠;
+    const origem = `${this.minhaPosicao.lat},${this.minhaPosicao.lng}`;
     const url =
-      ⁠ https://www.google.com/maps/dir/?api=1 ⁠ +
-      ⁠ &origin=${encodeURIComponent(origem)} ⁠ +
-      ⁠ &destination=${encodeURIComponent(destino)} ⁠ +
-      ⁠ &travelmode=driving ⁠;
+      `https://www.google.com/maps/dir/?api=1` +
+      `&origin=${encodeURIComponent(origem)}` +
+      `&destination=${encodeURIComponent(destino)}` +
+      `&travelmode=driving`;
 
     window.open(url, '_blank');
   }
@@ -600,7 +600,7 @@ export class MapaComponent implements AfterViewInit {
 
   // ===== veiculo =====
   private carregarVeiculoRecente(): void {
-    const url = ⁠ ${environment.apiUrl}/tickets/meus?size=1&sort=inicioTicket,desc ⁠;
+    const url = `${environment.apiUrl}/tickets/meus?size=1&sort=inicioTicket,desc`;
 
     this.http.get<any>(url).subscribe({
       next: (res) => {
@@ -697,7 +697,7 @@ export class MapaComponent implements AfterViewInit {
 
   public get veiculoAtualLabel(): string {
     if (this.veiculoAtualPlaca?.trim()) return this.veiculoAtualPlaca;
-    if (this.veiculoAtualId) return ⁠ #${this.veiculoAtualId} ⁠;
+    if (this.veiculoAtualId) return `#${this.veiculoAtualId}`;
     return 'Nenhum veículo selecionado';
   }
 
@@ -721,7 +721,7 @@ export class MapaComponent implements AfterViewInit {
     this.carregandoVeiculos = true;
     this.cdr.detectChanges();
 
-    const url = ⁠ ${environment.apiUrl}/veiculos/meus ⁠;
+    const url = `${environment.apiUrl}/veiculos/meus`;
 
     this.http
       .get<any>(url)
