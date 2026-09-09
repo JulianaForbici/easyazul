@@ -12,7 +12,9 @@ A aplicação também possui suporte a **Docker**, permitindo executar frontend,
 
 Confira abaixo uma demonstração do EasyAzul em funcionamento, apresentando as principais telas e funcionalidades implementadas no projeto.
 
-https://github.com/user-attachments/assets/b2a7f083-7915-46f6-88bd-683b21e2a59e
+
+https://github.com/user-attachments/assets/63bed895-929f-420c-bc94-625e2c8af2ac
+
 
 ---
 
